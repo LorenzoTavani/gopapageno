@@ -3,6 +3,8 @@ package main
 
 import "github.com/giornetta/gopapageno"
 
+
+
 func NewLexer() *gopapageno.Lexer {
 	automaton := []gopapageno.LexerDFAState{
 		{[256]int{-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 2, -1, -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, 4, 5, -1, -1, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 8, -1, 9, -1, -1, -1, -1, -1, -1, -1, -1, 10, -1, -1, -1, -1, -1, -1, -1, 11, -1, -1, -1, -1, -1, 12, -1, -1, -1, -1, -1, -1, 13, -1, 14, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, false, []int{}},
@@ -49,59 +51,59 @@ func NewLexer() *gopapageno.Lexer {
 		switch ruleDescription {
 		case 0:
 			{
-				token.Type = LCURLY
+			    token.Type = LCURLY
 			}
 		case 1:
 			{
-				token.Type = RCURLY
+			    token.Type = RCURLY
 			}
 		case 2:
 			{
-				token.Type = LSQUARE
+			    token.Type = LSQUARE
 			}
 		case 3:
 			{
-				token.Type = RSQUARE
+			    token.Type = RSQUARE
 			}
 		case 4:
 			{
-				token.Type = COMMA
+			    token.Type = COMMA
 			}
 		case 5:
 			{
-				token.Type = COLON
+			    token.Type = COLON
 			}
 		case 6:
 			{
-				token.Type = STRING
+			    token.Type = STRING
 			}
 		case 7:
 			{
-				token.Type = NUMBER
+			    token.Type = NUMBER
 			}
 		case 8:
 			{
-				token.Type = NUMBER
+			    token.Type = NUMBER
 			}
 		case 9:
 			{
-				token.Type = NUMBER
+			    token.Type = NUMBER
 			}
 		case 10:
 			{
-				token.Type = NUMBER
+			    token.Type = NUMBER
 			}
 		case 11:
 			{
-				token.Type = BOOL
+			    token.Type = BOOL
 			}
 		case 12:
 			{
-				token.Type = BOOL
+			    token.Type = BOOL
 			}
 		case 13:
 			{
-				token.Type = NULL
+			    token.Type = NULL
 			}
 		case 14:
 			{
@@ -119,8 +121,8 @@ func NewLexer() *gopapageno.Lexer {
 	}
 
 	return &gopapageno.Lexer{
-		Automaton:          automaton,
+		Automaton: automaton,
 		CutPointsAutomaton: cutPointsAutomaton,
-		Func:               fn,
+		Func: fn,
 	}
 }

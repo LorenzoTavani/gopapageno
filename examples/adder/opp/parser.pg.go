@@ -2,9 +2,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/giornetta/gopapageno"
 	"strings"
+	"fmt"
+	"os"
 )
 
 import (
@@ -25,6 +26,7 @@ func ParserPreallocMem(inputSize int, numThreads int) {
 	}
 }
 
+
 // Non-terminals
 const (
 	E = gopapageno.TokenEmpty + 1 + iota
@@ -39,6 +41,81 @@ const (
 	PLUS
 	RPAR
 )
+
+func DumpGraph[ValueType any](root *gopapageno.Token, f *os.File) {
+	sb := strings.Builder{}
+	sb.WriteString("digraph parse_tree {\n")
+	sb.WriteString("ratio = fill;\n")
+	sb.WriteString("node [style=filled];\n")
+
+	var graphPrintRec func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int)
+	graphPrintRec = func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int) {
+		if t == nil {
+			return
+		}
+
+		if p == nil {
+			graphPrintRec(t.Child, t, sb, i+1)
+			return
+		}
+
+		var t_name, t_color, p_name, p_color string
+
+		switch p.Type {
+		case E:
+			p_name, p_color = "E", "0.408 0.498 1.000"
+		case E_T:
+			p_name, p_color = "E_T", "0.408 0.498 1.000"
+		case S:
+			p_name, p_color = "S", "0.408 0.498 1.000"
+		case gopapageno.TokenEmpty:
+			p_name, p_color = "__EMPTY__", "0.408 0.498 1.000"
+		case LPAR:
+			p_name, p_color = "LPAR", "0.641 0.212 1.000"
+		case NUMBER:
+			p_name, p_color = "NUMBER", "0.641 0.212 1.000"
+		case PLUS:
+			p_name, p_color = "PLUS", "0.641 0.212 1.000"
+		case RPAR:
+			p_name, p_color = "RPAR", "0.641 0.212 1.000"
+		case gopapageno.TokenTerm:
+			p_name, p_color = "__TERM__", "0.641 0.212 1.000"
+		}
+
+		switch t.Type {
+		case E:
+			t_name, t_color = "E", "0.408 0.498 1.000"
+		case E_T:
+			t_name, t_color = "E_T", "0.408 0.498 1.000"
+		case S:
+			t_name, t_color = "S", "0.408 0.498 1.000"
+		case gopapageno.TokenEmpty:
+			t_name, t_color = "__EMPTY__", "0.408 0.498 1.000"
+		case LPAR:
+			t_name, t_color = "LPAR", "0.641 0.212 1.000"
+		case NUMBER:
+			t_name, t_color = "NUMBER", "0.641 0.212 1.000"
+		case PLUS:
+			t_name, t_color = "PLUS", "0.641 0.212 1.000"
+		case RPAR:
+			t_name, t_color = "RPAR", "0.641 0.212 1.000"
+		case gopapageno.TokenTerm:
+			t_name, t_color = "__TERM__", "0.641 0.212 1.000"
+		}
+
+		sb.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", p, t))
+		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", p, p_name, p_color))
+		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", t, t_name, t_color))
+
+		graphPrintRec(t.Child, t, sb, i+1)
+		graphPrintRec(t.Next, p, sb, i)
+	}
+	graphPrintRec(root, nil, &sb, 0)
+	sb.WriteString("}\n")
+
+	fmt.Fprint(f, sb.String())
+}
+
 
 func SprintToken[ValueType any](root *gopapageno.Token) string {
 	var sprintRec func(t *gopapageno.Token, sb *strings.Builder, indent string)
@@ -83,19 +160,21 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 		if t.Value != nil {
 			if v, ok := any(t.Value).(*ValueType); ok {
 				sb.WriteString(fmt.Sprintf(": %v", *v))
+			} else {
+				sb.WriteString(fmt.Sprintf("%v", v))
 			}
 		}
-
+		
 		sb.WriteString("\n")
-
+		
 		sprintRec(t.Child, sb, indent)
 		sprintRec(t.Next, sb, indent[:len(indent)-4])
 	}
 
 	var sb strings.Builder
-
+	
 	sprintRec(root, &sb, "")
-
+	
 	return sb.String()
 }
 
@@ -113,7 +192,7 @@ func NewGrammar() *gopapageno.Grammar {
 		{E_T, []gopapageno.TokenType{LPAR, E_T, RPAR}, gopapageno.RuleSimple},
 		{E_T, []gopapageno.TokenType{NUMBER}, gopapageno.RuleSimple},
 	}
-	compressedRules := []uint16{0, 0, 4, 1, 11, 2, 24, 32769, 37, 32770, 60, 3, 0, 1, 32771, 16, 0, 0, 1, 2, 21, 1, 1, 0, 3, 2, 1, 32771, 29, 0, 0, 1, 2, 34, 1, 3, 0, 0, 0, 2, 1, 44, 2, 52, 0, 0, 1, 32772, 49, 2, 4, 0, 0, 0, 1, 32772, 57, 2, 5, 0, 2, 6, 0}
+	compressedRules := []uint16{0, 0, 4, 1, 11, 2, 24, 32769, 37, 32770, 60, 3, 0, 1, 32771, 16, 0, 0, 1, 2, 21, 1, 1, 0, 3, 2, 1, 32771, 29, 0, 0, 1, 2, 34, 1, 3, 0, 0, 0, 2, 1, 44, 2, 52, 0, 0, 1, 32772, 49, 2, 4, 0, 0, 0, 1, 32772, 57, 2, 5, 0, 2, 6, 0	}
 
 	precMatrix := [][]gopapageno.Precedence{
 		{gopapageno.PrecEquals, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields},
@@ -123,10 +202,10 @@ func NewGrammar() *gopapageno.Grammar {
 		{gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes},
 	}
 	bitPackedMatrix := []uint64{
-		706597955393876,
+		706597955393876, 
 	}
 
-	fn := func(ruleDescription uint16, ruleFlags gopapageno.RuleFlags, lhs *gopapageno.Token, rhs []*gopapageno.Token, thread int) {
+	fn := func(ruleDescription uint16, ruleFlags gopapageno.RuleFlags, lhs *gopapageno.Token, rhs []*gopapageno.Token, thread int){
 		switch ruleDescription {
 		case 0:
 			S0 := lhs
@@ -200,7 +279,7 @@ func NewGrammar() *gopapageno.Grammar {
 			E_T0.LastChild = RPAR3
 
 			{
-				E_T0.Value = E2.Value
+			    E_T0.Value = E2.Value
 			}
 			_ = LPAR1
 			_ = E2
@@ -217,7 +296,7 @@ func NewGrammar() *gopapageno.Grammar {
 			E_T0.LastChild = RPAR3
 
 			{
-				E_T0.Value = E_T2.Value
+			    E_T0.Value = E_T2.Value
 			}
 			_ = LPAR1
 			_ = E_T2
@@ -238,15 +317,16 @@ func NewGrammar() *gopapageno.Grammar {
 	}
 
 	return &gopapageno.Grammar{
-		NumTerminals:              numTerminals,
-		NumNonterminals:           numNonTerminals,
-		MaxRHSLength:              maxRHSLen,
-		Rules:                     rules,
-		CompressedRules:           compressedRules,
-		PrecedenceMatrix:          precMatrix,
+		NumTerminals:  numTerminals,
+		NumNonterminals: numNonTerminals,
+		MaxRHSLength: maxRHSLen,
+		Rules: rules,
+		CompressedRules: compressedRules,
+		PrecedenceMatrix: precMatrix,
 		BitPackedPrecedenceMatrix: bitPackedMatrix,
-		Func:                      fn,
-		ParsingStrategy:           gopapageno.OPP,
-		PreambleFunc:              ParserPreallocMem,
+		Func: fn,
+		ParsingStrategy: gopapageno.OPP,
+		PreambleFunc: ParserPreallocMem,
 	}
 }
+

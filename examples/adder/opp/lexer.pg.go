@@ -3,9 +3,10 @@ package main
 
 import "github.com/giornetta/gopapageno"
 
+
 import (
-	"math"
 	"strconv"
+	"math"
 )
 
 var lexerPools []*gopapageno.Pool[int64]
@@ -20,6 +21,7 @@ func LexerPreallocMem(inputSize int, numThreads int) {
 		lexerPools[i] = gopapageno.NewPool[int64](poolSizePerThread)
 	}
 }
+
 
 func NewLexer() *gopapageno.Lexer {
 	automaton := []gopapageno.LexerDFAState{
@@ -42,28 +44,28 @@ func NewLexer() *gopapageno.Lexer {
 		switch ruleDescription {
 		case 0:
 			{
-				token.Type = LPAR
+			    token.Type = LPAR
 			}
 		case 1:
 			{
-				token.Type = RPAR
+			    token.Type = RPAR
 			}
 		case 2:
 			{
-				token.Type = PLUS
+			    token.Type = PLUS
 			}
 		case 3:
 			{
-				num := lexerPools[thread].Get()
-				var err error
-
-				*num, err = strconv.ParseInt(text, 10, 64)
-				if err != nil {
-					return gopapageno.LexErr
-				}
-
-				token.Type = NUMBER
-				token.Value = num
+			    num := lexerPools[thread].Get()
+			    var err error
+			
+			    *num, err = strconv.ParseInt(text, 10, 64)
+			    if err != nil {
+			        return gopapageno.LexErr
+			    }
+			
+			    token.Type = NUMBER
+			    token.Value = num
 			}
 		case 4:
 			{
@@ -81,9 +83,9 @@ func NewLexer() *gopapageno.Lexer {
 	}
 
 	return &gopapageno.Lexer{
-		Automaton:          automaton,
+		Automaton: automaton,
 		CutPointsAutomaton: cutPointsAutomaton,
-		Func:               fn,
-		PreambleFunc:       LexerPreallocMem,
+		Func: fn,
+		PreambleFunc: LexerPreallocMem,
 	}
 }
