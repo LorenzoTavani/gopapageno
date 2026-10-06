@@ -263,7 +263,7 @@ func (l *lexerDescriptor) emit(opts *Options, packageName string) error {
 	/********
 	 * Code *
 	 ********/
-	fmt.Fprintf(f, l.code)
+	fmt.Fprint(f, l.code)
 
 	// NewLexer function starts here.
 	fmt.Fprintf(f, "\n\nfunc NewLexer() *gopapageno.Lexer {\n")

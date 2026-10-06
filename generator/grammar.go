@@ -378,7 +378,7 @@ func (p *grammarDescription) emit(opts *Options, packageName string) error {
 	/********
 	 * Code *
 	 ********/
-	fmt.Fprintf(f, p.code)
+	fmt.Fprint(f, p.code)
 	fmt.Fprintf(f, "\n\n")
 
 	/**********
@@ -585,7 +585,7 @@ func (p *grammarDescription) emitParserFunctions(f io.Writer) {
 		lines := strings.Split(action, "\n")
 		for _, line := range lines {
 			fmt.Fprintf(f, "\t\t\t")
-			fmt.Fprintf(f, line)
+			fmt.Fprint(f, line)
 			fmt.Fprintf(f, "\n")
 		}
 
