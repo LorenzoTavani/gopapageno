@@ -257,18 +257,16 @@ func emitBenchmarkFile(opts *Options, packageName string) error {
 	fmt.Fprintf(gFile, `import (
 	"github.com/giornetta/gopapageno"
 	"github.com/giornetta/gopapageno/benchmark"
-	"path"
 	"runtime"
 	"testing"
 )
 
 const baseFolder = "../data/"
 
-var table = map[string]any{
-}
+var entries = []*benchmark.Entry[any]{}
 
 func BenchmarkParse(b *testing.B) {
-	benchmark.Runner[any](b, gopapageno.%s, NewLexer, NewGrammar, table)
+	benchmark.Runner[any](b, gopapageno.%s, NewLexer, NewGrammar, entries)
 }
 
 func TestProfile(t *testing.T) {
@@ -280,6 +278,9 @@ func TestProfile(t *testing.T) {
 	}
 
 	filename := ""
+	if filename == "" {
+		t.Skip("set filename to a source file to run this test")
+	}
 
 	benchmark.Profile(t, NewLexer, NewGrammar, opts, filename)
 }
