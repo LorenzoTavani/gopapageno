@@ -2,10 +2,11 @@ package generator
 
 import (
 	"fmt"
-	"github.com/giornetta/gopapageno"
 	"log"
 	"os"
 	"path"
+
+	"github.com/giornetta/gopapageno"
 )
 
 const (
@@ -266,7 +267,11 @@ const baseFolder = "../data/"
 var entries = []*benchmark.Entry[any]{}
 
 func BenchmarkParse(b *testing.B) {
-	benchmark.Runner[any](b, gopapageno.%s, NewLexer, NewGrammar, entries)
+	benchmark.Runner[any](b, gopapageno.%[1]s, gopapageno.ReductionParallel, NewLexer, NewGrammar, entries)
+}
+
+func BenchmarkParseOnly(b *testing.B) {
+	benchmark.ParserRunner[any](b, gopapageno.%[1]s, gopapageno.ReductionParallel, NewLexer, NewGrammar, entries)
 }
 
 func TestProfile(t *testing.T) {
