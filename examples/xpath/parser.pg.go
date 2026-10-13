@@ -5,35 +5,35 @@ import (
 	"github.com/giornetta/gopapageno"
 	"strings"
 	"fmt"
+	"os"
 )
 
 import (
-    "sync"
-    "github.com/giornetta/gopapageno/ext/xpath"
+	"github.com/giornetta/gopapageno/ext/xpath"
+	"math"
 )
 
-var reductionPool = &sync.Pool{
-	New: func() interface{} {
-		return new(xpath.Reduction)
-	},
-}
-
 var parserElementsPools []*gopapageno.Pool[xpath.Element]
+var parserNonTerminalPools []*gopapageno.Pool[xpath.NonTerminal]
 
 // ParserPreallocMem initializes all the memory pools required by the semantic function of the parser.
 func ParserPreallocMem(inputSize int, numThreads int) {
-    poolSizePerThread := 10000
+	tagTypes := float64(2)
+	poolSizePerThread := int(math.Ceil(float64(inputSize) / tagTypes))
 
-    parserElementsPools = make([]*gopapageno.Pool[xpath.Element], numThreads)
-    for i := 0; i < numThreads; i++ {
-        parserElementsPools[i] = gopapageno.NewPool[xpath.Element](poolSizePerThread)
-    }
+	parserElementsPools = make([]*gopapageno.Pool[xpath.Element], numThreads)
+	parserNonTerminalPools = make([]*gopapageno.Pool[xpath.NonTerminal], numThreads)
+	for i := 0; i < numThreads; i++ {
+		parserElementsPools[i] = gopapageno.NewPool[xpath.Element](poolSizePerThread)
+		parserNonTerminalPools[i] = gopapageno.NewPool[xpath.NonTerminal](poolSizePerThread)
+	}
 }
 
 
 // Non-terminals
 const (
-	ELEM = gopapageno.TokenEmpty + 1 + iota
+	DOCUMENT = gopapageno.TokenEmpty + 1 + iota
+	ELEM
 )
 
 // Terminals
@@ -43,6 +43,77 @@ const (
 	OPENTAG
 	TEXT
 )
+
+func DumpGraph[ValueType any](root *gopapageno.Token, f *os.File) {
+	sb := strings.Builder{}
+	sb.WriteString("digraph parse_tree {\n")
+	sb.WriteString("ratio = fill;\n")
+	sb.WriteString("node [style=filled];\n")
+
+	var graphPrintRec func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int)
+	graphPrintRec = func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int) {
+		if t == nil {
+			return
+		}
+
+		if p == nil {
+			graphPrintRec(t.Child, t, sb, i+1)
+			return
+		}
+
+		var t_name, t_color, p_name, p_color string
+
+		switch p.Type {
+		case DOCUMENT:
+			p_name, p_color = "DOCUMENT", "0.408 0.498 1.000"
+		case ELEM:
+			p_name, p_color = "ELEM", "0.408 0.498 1.000"
+		case gopapageno.TokenEmpty:
+			p_name, p_color = "__EMPTY__", "0.408 0.498 1.000"
+		case CLOSETAG:
+			p_name, p_color = "CLOSETAG", "0.641 0.212 1.000"
+		case OPENCLOSETAG:
+			p_name, p_color = "OPENCLOSETAG", "0.641 0.212 1.000"
+		case OPENTAG:
+			p_name, p_color = "OPENTAG", "0.641 0.212 1.000"
+		case TEXT:
+			p_name, p_color = "TEXT", "0.641 0.212 1.000"
+		case gopapageno.TokenTerm:
+			p_name, p_color = "__TERM__", "0.641 0.212 1.000"
+		}
+
+		switch t.Type {
+		case DOCUMENT:
+			t_name, t_color = "DOCUMENT", "0.408 0.498 1.000"
+		case ELEM:
+			t_name, t_color = "ELEM", "0.408 0.498 1.000"
+		case gopapageno.TokenEmpty:
+			t_name, t_color = "__EMPTY__", "0.408 0.498 1.000"
+		case CLOSETAG:
+			t_name, t_color = "CLOSETAG", "0.641 0.212 1.000"
+		case OPENCLOSETAG:
+			t_name, t_color = "OPENCLOSETAG", "0.641 0.212 1.000"
+		case OPENTAG:
+			t_name, t_color = "OPENTAG", "0.641 0.212 1.000"
+		case TEXT:
+			t_name, t_color = "TEXT", "0.641 0.212 1.000"
+		case gopapageno.TokenTerm:
+			t_name, t_color = "__TERM__", "0.641 0.212 1.000"
+		}
+
+		sb.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", p, t))
+		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", p, p_name, p_color))
+		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", t, t_name, t_color))
+
+		graphPrintRec(t.Child, t, sb, i+1)
+		graphPrintRec(t.Next, p, sb, i)
+	}
+	graphPrintRec(root, nil, &sb, 0)
+	sb.WriteString("}\n")
+
+	fmt.Fprint(f, sb.String())
+}
+
 
 func SprintToken[ValueType any](root *gopapageno.Token) string {
 	var sprintRec func(t *gopapageno.Token, sb *strings.Builder, indent string)
@@ -62,6 +133,8 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 		}
 
 		switch t.Type {
+		case DOCUMENT:
+			sb.WriteString("DOCUMENT")
 		case ELEM:
 			sb.WriteString("ELEM")
 		case gopapageno.TokenEmpty:
@@ -101,16 +174,21 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 
 func NewGrammar() *gopapageno.Grammar {
 	numTerminals := uint16(5)
-	numNonTerminals := uint16(2)
+	numNonTerminals := uint16(3)
 
-	maxRHSLen := 3
+	maxRHSLen := 4
 	rules := []gopapageno.Rule{
+		{DOCUMENT, []gopapageno.TokenType{ELEM}, gopapageno.RuleSimple},
+		{ELEM, []gopapageno.TokenType{ELEM, OPENCLOSETAG}, gopapageno.RuleSimple},
+		{ELEM, []gopapageno.TokenType{ELEM, OPENTAG, ELEM, CLOSETAG}, gopapageno.RuleSimple},
+		{ELEM, []gopapageno.TokenType{ELEM, OPENTAG, CLOSETAG}, gopapageno.RuleSimple},
+		{ELEM, []gopapageno.TokenType{ELEM, TEXT}, gopapageno.RuleSimple},
 		{ELEM, []gopapageno.TokenType{OPENCLOSETAG}, gopapageno.RuleSimple},
 		{ELEM, []gopapageno.TokenType{OPENTAG, ELEM, CLOSETAG}, gopapageno.RuleSimple},
 		{ELEM, []gopapageno.TokenType{OPENTAG, CLOSETAG}, gopapageno.RuleSimple},
 		{ELEM, []gopapageno.TokenType{TEXT}, gopapageno.RuleSimple},
 	}
-	compressedRules := []uint16{0, 0, 3, 32770, 9, 32771, 12, 32772, 30, 1, 0, 0, 0, 0, 2, 1, 19, 32769, 27, 0, 0, 1, 32769, 24, 1, 1, 0, 1, 2, 0, 1, 3, 0	}
+	compressedRules := []uint16{0, 0, 4, 2, 11, 32770, 44, 32771, 47, 32772, 65, 1, 0, 3, 32770, 20, 32771, 23, 32772, 41, 2, 1, 0, 0, 0, 2, 2, 30, 32769, 38, 0, 0, 1, 32769, 35, 2, 2, 0, 2, 3, 0, 2, 4, 0, 2, 5, 0, 0, 0, 2, 2, 54, 32769, 62, 0, 0, 1, 32769, 59, 2, 6, 0, 2, 7, 0, 2, 8, 0	}
 
 	precMatrix := [][]gopapageno.Precedence{
 		{gopapageno.PrecEquals, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields},
@@ -126,6 +204,132 @@ func NewGrammar() *gopapageno.Grammar {
 	fn := func(ruleDescription uint16, ruleFlags gopapageno.RuleFlags, lhs *gopapageno.Token, rhs []*gopapageno.Token, thread int){
 		switch ruleDescription {
 		case 0:
+			DOCUMENT0 := lhs
+			ELEM1 := rhs[0]
+
+			DOCUMENT0.Child = ELEM1
+			DOCUMENT0.LastChild = ELEM1
+
+			{
+				DOCUMENT0.Value = ELEM1.Value
+			}
+			_ = ELEM1
+		case 1:
+			ELEM0 := lhs
+			ELEM1 := rhs[0]
+			OPENCLOSETAG2 := rhs[1]
+
+			ELEM0.Child = ELEM1
+			ELEM1.Next = OPENCLOSETAG2
+			ELEM0.LastChild = OPENCLOSETAG2
+
+			{
+				openCloseTag := OPENCLOSETAG2.Value.(*xpath.OpenTagSemanticValue)
+			
+				element := parserElementsPools[thread].Get()
+				element.SetFromSingleTag(*openCloseTag)
+			
+				generativeNonTerminal := ELEM1.Value.(*xpath.NonTerminal)
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(element).SetDirectChildAndInheritItsChildren(generativeNonTerminal)
+			
+				xpath.Reduce(reducedNonTerminal, generativeNonTerminal, nil)
+			
+				ELEM0.Value = reducedNonTerminal
+			}
+			_ = ELEM1
+			_ = OPENCLOSETAG2
+		case 2:
+			ELEM0 := lhs
+			ELEM1 := rhs[0]
+			OPENTAG2 := rhs[1]
+			ELEM3 := rhs[2]
+			CLOSETAG4 := rhs[3]
+
+			ELEM0.Child = ELEM1
+			ELEM1.Next = OPENTAG2
+			OPENTAG2.Next = ELEM3
+			ELEM3.Next = CLOSETAG4
+			ELEM0.LastChild = CLOSETAG4
+
+			{
+				openTag := OPENTAG2.Value.(*xpath.OpenTagSemanticValue)
+				closeTag := CLOSETAG4.Value.(*xpath.CloseTagSemanticValue)
+			
+				element := parserElementsPools[thread].Get()
+				element.SetFromExtremeTags(*openTag, *closeTag)
+			
+				generativeNonTerminal := ELEM1.Value.(*xpath.NonTerminal)
+				wrappedNonTerminal := ELEM3.Value.(*xpath.NonTerminal)
+			
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(element).SetDirectChildAndInheritItsChildren(generativeNonTerminal)
+			
+				xpath.Reduce(reducedNonTerminal, generativeNonTerminal, wrappedNonTerminal)
+			
+				ELEM0.Value = reducedNonTerminal
+			}
+			_ = ELEM1
+			_ = OPENTAG2
+			_ = ELEM3
+			_ = CLOSETAG4
+		case 3:
+			ELEM0 := lhs
+			ELEM1 := rhs[0]
+			OPENTAG2 := rhs[1]
+			CLOSETAG3 := rhs[2]
+
+			ELEM0.Child = ELEM1
+			ELEM1.Next = OPENTAG2
+			OPENTAG2.Next = CLOSETAG3
+			ELEM0.LastChild = CLOSETAG3
+
+			{
+				openTag := OPENTAG2.Value.(*xpath.OpenTagSemanticValue)
+				closeTag := CLOSETAG3.Value.(*xpath.CloseTagSemanticValue)
+			
+				element := parserElementsPools[thread].Get()
+				element.SetFromExtremeTags(*openTag, *closeTag)
+			
+				generativeNonTerminal := ELEM1.Value.(*xpath.NonTerminal)
+			
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(element).SetDirectChildAndInheritItsChildren(generativeNonTerminal)
+			
+				xpath.Reduce(reducedNonTerminal, generativeNonTerminal, nil)
+			
+				ELEM0.Value = reducedNonTerminal
+			}
+			_ = ELEM1
+			_ = OPENTAG2
+			_ = CLOSETAG3
+		case 4:
+			ELEM0 := lhs
+			ELEM1 := rhs[0]
+			TEXT2 := rhs[1]
+
+			ELEM0.Child = ELEM1
+			ELEM1.Next = TEXT2
+			ELEM0.LastChild = TEXT2
+
+			{
+				tsv := TEXT2.Value.(*xpath.TextSemanticValue)
+			
+				text := new(xpath.Text)
+				text.SetFromText(*tsv)
+			
+				generativeNonTerminal := ELEM1.Value.(*xpath.NonTerminal)
+			
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(text).SetDirectChildAndInheritItsChildren(generativeNonTerminal)
+			
+				xpath.Reduce(reducedNonTerminal, generativeNonTerminal, nil)
+			
+				ELEM0.Value = reducedNonTerminal
+			}
+			_ = ELEM1
+			_ = TEXT2
+		case 5:
 			ELEM0 := lhs
 			OPENCLOSETAG1 := rhs[0]
 
@@ -133,22 +337,20 @@ func NewGrammar() *gopapageno.Grammar {
 			ELEM0.LastChild = OPENCLOSETAG1
 
 			{
-			    openCloseTag := OPENCLOSETAG1.Value.(xpath.OpenCloseTagSemanticValue)
+				openCloseTag := OPENCLOSETAG1.Value.(*xpath.OpenTagSemanticValue)
 			
-			    element := parserElementsPools[thread].Get()
-			    element.SetFromSingleTag(openCloseTag)
+				element := parserElementsPools[thread].Get()
+				element.SetFromSingleTag(*openCloseTag)
 			
-			    reducedNonTerminal := xpath.NewNonTerminal().SetNode(element)
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(element)
 			
-			    reduction := reductionPool.Get().(*xpath.Reduction)
-			    reduction.Setup(reducedNonTerminal, nil, nil)
-			    reduction.Handle()
-			    reductionPool.Put(reduction)
+				xpath.Reduce(reducedNonTerminal, nil, nil)
 			
-			    ELEM0.Value = reducedNonTerminal
+				ELEM0.Value = reducedNonTerminal
 			}
 			_ = OPENCLOSETAG1
-		case 1:
+		case 6:
 			ELEM0 := lhs
 			OPENTAG1 := rhs[0]
 			ELEM2 := rhs[1]
@@ -160,26 +362,24 @@ func NewGrammar() *gopapageno.Grammar {
 			ELEM0.LastChild = CLOSETAG3
 
 			{
-			    openTag := OPENTAG1.Value.(xpath.OpenTagSemanticValue)
-			    closeTag := CLOSETAG3.Value.(xpath.CloseTagSemanticValue)
+				openTag := OPENTAG1.Value.(*xpath.OpenTagSemanticValue)
+				closeTag := CLOSETAG3.Value.(*xpath.CloseTagSemanticValue)
 			
-			    element := parserElementsPools[thread].Get()
-			    element.SetFromExtremeTags(openTag, closeTag)
+				element := parserElementsPools[thread].Get()
+				element.SetFromExtremeTags(*openTag, *closeTag)
 			
-			    wrappedNonTerminal := ELEM2.Value.(xpath.NonTerminal)
-			    reducedNonTerminal := xpath.NewNonTerminal().SetNode(element)
+				wrappedNonTerminal := ELEM2.Value.(*xpath.NonTerminal)
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(element)
 			
-			    reduction := reductionPool.Get().(*xpath.Reduction)
-			    reduction.Setup(reducedNonTerminal, nil, wrappedNonTerminal)
-			    reduction.Handle()
-			    reductionPool.Put(reduction)
+				xpath.Reduce(reducedNonTerminal, nil, wrappedNonTerminal)
 			
-			    ELEM0.Value = reducedNonTerminal
+				ELEM0.Value = reducedNonTerminal
 			}
 			_ = OPENTAG1
 			_ = ELEM2
 			_ = CLOSETAG3
-		case 2:
+		case 7:
 			ELEM0 := lhs
 			OPENTAG1 := rhs[0]
 			CLOSETAG2 := rhs[1]
@@ -189,24 +389,22 @@ func NewGrammar() *gopapageno.Grammar {
 			ELEM0.LastChild = CLOSETAG2
 
 			{
-			    openTag := OPENTAG1.Value.(xpath.OpenTagSemanticValue)
-			    closeTag := CLOSETAG2.Value.(xpath.CloseTagSemanticValue)
+				openTag := OPENTAG1.Value.(*xpath.OpenTagSemanticValue)
+				closeTag := CLOSETAG2.Value.(*xpath.CloseTagSemanticValue)
 			
-			    element := parserElementsPools[thread].Get()
-			    element.SetFromExtremeTags(openTag, closeTag)
+				element := parserElementsPools[thread].Get()
+				element.SetFromExtremeTags(*openTag, *closeTag)
 			
-			    reducedNonTerminal := xpath.NewNonTerminal().SetNode(element)
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(element)
 			
-			    reduction := reductionPool.Get().(*xpath.Reduction)
-			    reduction.Setup(reducedNonTerminal, nil, nil)
-			    reduction.Handle()
-			    reductionPool.Put(reduction)
+				xpath.Reduce(reducedNonTerminal, nil, nil)
 			
-			    ELEM0.Value = reducedNonTerminal
+				ELEM0.Value = reducedNonTerminal
 			}
 			_ = OPENTAG1
 			_ = CLOSETAG2
-		case 3:
+		case 8:
 			ELEM0 := lhs
 			TEXT1 := rhs[0]
 
@@ -214,20 +412,18 @@ func NewGrammar() *gopapageno.Grammar {
 			ELEM0.LastChild = TEXT1
 
 			{
-			    tsv := TEXT1.Value.(xpath.TextSemanticValue)
+				tsv := TEXT1.Value.(*xpath.TextSemanticValue)
 			
-			    text := new(xpath.Text)
-			    text.SetFromText(tsv)
+				text := new(xpath.Text)
+				text.SetFromText(*tsv)
 			
-			    reducedNonTerminal := xpath.NewNonTerminal().SetNode(text)
+				nt := parserNonTerminalPools[thread].Get()
+				reducedNonTerminal := nt.SetNode(text)
 			
-			    reduction := reductionPool.Get().(*xpath.Reduction)
-			    reduction.Setup(reducedNonTerminal, nil, nil)
-			    reduction.Handle()
-			    reductionPool.Put(reduction)
+				xpath.Reduce(reducedNonTerminal, nil, nil)
 			
 			
-			    ELEM0.Value = reducedNonTerminal
+				ELEM0.Value = reducedNonTerminal
 			}
 			_ = TEXT1
 		}
@@ -244,7 +440,7 @@ func NewGrammar() *gopapageno.Grammar {
 		BitPackedPrecedenceMatrix: bitPackedMatrix,
 		Func: fn,
 		ParsingStrategy: gopapageno.OPP,
-		PreambleFunc: LexerPreallocMem,
+		PreambleFunc: ParserPreallocMem,
 	}
 }
 

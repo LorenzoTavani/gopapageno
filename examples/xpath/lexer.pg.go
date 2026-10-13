@@ -5,33 +5,70 @@ import "github.com/giornetta/gopapageno"
 
 
 import (
-	"regexp"
-	"github.com/giornetta/gopapageno/ext/xpath"
+	"math"
+	xpath "github.com/giornetta/gopapageno/ext/xpath"
 )
 
-//A regexp.Regexp is safe for concurrent use by multiple goroutines, except for configuration methods, such as Longest.
-var generalTagRegexp *(regexp.Regexp)
-var attributesRegexp *(regexp.Regexp)
+func getIdAndAttributesListFrom(text string) (id string, attribute *xpath.Attribute) {
+	var l, r int
+	attribute = nil
 
-func getIdAndAttributesListFrom(text string) (id string, attributesList []*xpath.Attribute){
-	tagMatch := generalTagRegexp.FindStringSubmatch(text)
+	l = 1
+	if text[1] == byte('/') {
+		l = 2
+	}
 
-	id = tagMatch[1]
-	attributesString := tagMatch[2]
+	for ; r < (len(text) - 1) && text[r] != byte(' '); r++ {}
 
-	if(attributesString != ""){
-		attributesMatches := attributesRegexp.FindAllStringSubmatch(attributesString, -1)
-		for _, attributeMatch := range attributesMatches{
-			attribute := xpath.NewAttribute(attributeMatch[1], attributeMatch[2])
-			attributesList = append(attributesList, attribute)
+	if text[r] == byte('>') {
+		if text[r-1] == byte('/') {
+			r--
+			id = string(text[l:r])
+		} else {
+			id = string(text[l:r])
+		}
+		return
+	} else {
+		id = string(text[l:r])
+	}
+
+	for r < len(text) {
+		for ; text[r] == byte(' ') && r < len(text); r++ {}
+		l = r
+
+		for ; text[r] != byte('=') && r < len(text); r++ {}
+		key := string(text[l:r])
+		r = r + 2 // skip ="
+		l = r
+
+		for ; text[r] != byte('"') && r < len(text); r++ {}
+		value := string(text[l:r])
+		r = r + 1 // skip "
+
+		attribute = &xpath.Attribute{Key: key, Value: value, Next: attribute}
+
+		if text[r] == byte('/') || text[r] == byte('>') {
+			break
 		}
 	}
 	return
 }
 
-func LexerPreallocMem(inputSize int, numThreads int){
-	generalTagRegexp = regexp.MustCompile(`^<\/?([a-zA-Z0-9_\-:]+)(?:\s*)([^\/>]*)\/?>$`)
-	attributesRegexp = regexp.MustCompile(`([a-zA-Z0-9_\-:]+)(?:=")([^"]+)(?:")`)
+
+var lexerOpenTagSemanticValuePools []*gopapageno.Pool[xpath.OpenTagSemanticValue]
+var lexerCloseTagSemanticValuePools []*gopapageno.Pool[xpath.CloseTagSemanticValue]
+
+func LexerPreallocMem(inputSize int, numThreads int) {
+	lexerOpenTagSemanticValuePools = make([]*gopapageno.Pool[xpath.OpenTagSemanticValue], numThreads)
+	lexerCloseTagSemanticValuePools = make([]*gopapageno.Pool[xpath.CloseTagSemanticValue], numThreads)
+
+	tagTypes := float64(2)
+	poolSizePerThread := int(math.Ceil((float64(inputSize) / tagTypes) / float64(numThreads)))
+
+	for i := 0; i < numThreads; i++ {
+		lexerOpenTagSemanticValuePools[i] = gopapageno.NewPool[xpath.OpenTagSemanticValue](poolSizePerThread)
+		lexerCloseTagSemanticValuePools[i] = gopapageno.NewPool[xpath.CloseTagSemanticValue](poolSizePerThread)
+	}
 }
 
 
@@ -77,26 +114,37 @@ func NewLexer() *gopapageno.Lexer {
 		case 0:
 			{
 				id, attributesList := getIdAndAttributesListFrom(text)
-				semanticValue := xpath.NewOpenTagSemanticValue(id, attributesList, start, end)
+				semanticValue := lexerOpenTagSemanticValuePools[thread].Get()
+				semanticValue.SemanticValue.Id = id
+				semanticValue.SemanticValue.StartPos = start
+				semanticValue.SemanticValue.EndPos = end
+				semanticValue.Attribute = attributesList
 			
 				token.Type = OPENTAG
-				token.Value = *semanticValue
+				token.Value = semanticValue
 			}
 		case 1:
 			{
 				id, attributesList := getIdAndAttributesListFrom(text)
-				semanticValue := xpath.NewOpenCloseTagSemanticValue(id, attributesList, start, end)
+				semanticValue := lexerOpenTagSemanticValuePools[thread].Get()
+				semanticValue.SemanticValue.Id = id
+				semanticValue.SemanticValue.StartPos = start
+				semanticValue.SemanticValue.EndPos = end
+				semanticValue.Attribute = attributesList
 			
-			    token.Type = OPENCLOSETAG
-			    token.Value = *semanticValue
+				token.Type = OPENCLOSETAG
+				token.Value = semanticValue
 			}
 		case 2:
 			{
 				id, _ := getIdAndAttributesListFrom(text)
-				semanticValue := xpath.NewCloseTagSemanticValue(id, start, end)
+				semanticValue := lexerCloseTagSemanticValuePools[thread].Get()
+				semanticValue.SemanticValue.Id = id
+				semanticValue.SemanticValue.StartPos = start
+				semanticValue.SemanticValue.EndPos = end
 			
-			    token.Type = CLOSETAG
-			    token.Value = *semanticValue
+				token.Type = CLOSETAG
+				token.Value = semanticValue
 			}
 		case 3:
 			{
@@ -115,7 +163,7 @@ func NewLexer() *gopapageno.Lexer {
 				semanticValue := xpath.NewTextSemanticValue(text, start, end)
 			
 				token.Type = TEXT
-				token.Value = *semanticValue
+				token.Value = semanticValue
 			}
 		default:
 			return gopapageno.LexErr
