@@ -131,7 +131,7 @@ ELEM : ELEM OPENTAG ELEM CLOSETAG
 %%
 
 import (
-	"github.com/giornetta/gopapageno/ext/xpath"
+	"github.com/LorenzoTavani/gopapageno/ext/xpath"
 	"math"
 )
 

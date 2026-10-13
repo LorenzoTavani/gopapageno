@@ -3,7 +3,7 @@ package xpath
 import (
 	"fmt"
 	"context"
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 )
 
 func parse(xpathQuery string) mainQueryType {

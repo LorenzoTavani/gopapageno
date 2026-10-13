@@ -2,7 +2,7 @@
 
 <!--
 TODO before delivery:
-- install path: replace github.com/giornetta/gopapageno with the final module path
+- - install path: the module path is provisional (github.com/LorenzoTavani/gopapageno); update it once the final location is decided
 - add a section on the XPath extension (query parser present but not reliable;
   XPathMark benchmark queries are hardcoded in LoadQuery)
 - document the -graph flag, // comments in .l/.g files and precedence-conflict logging
@@ -30,7 +30,7 @@ that it produces.
 GoPAPAGENO can be installed by using the Go toolchain and running the following command:
 
 ```bash
-go install github.com/giornetta/gopapageno/cmd/gopapageno@latest
+go install github.com/LorenzoTavani/gopapageno/cmd/gopapageno@latest
 ```
 
 Alternatively, you can run a Docker container:
@@ -180,7 +180,7 @@ Example folders also contain a `benchmark_test.go` benchmark file that can be ex
 
 To run a benchmark, execute a command with the following format:
 ```bash
-go test github.com/giornetta/gopapageno/examples/{{ .EXAMPLE }}/{{ .STRAT }} -bench=BenchmarkParseOnly -count={{ .COUNT }}
+go test github.com/LorenzoTavani/gopapageno/examples/{{ .EXAMPLE }}/{{ .STRAT }} -bench=BenchmarkParseOnly -count={{ .COUNT }}
 ```
 
 To learn more about benchmarking details and how to replicate the process, please read the [EVALUATING.md](EVALUATING.md) file.

@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	"github.com/giornetta/gopapageno"
-	"github.com/giornetta/gopapageno/benchmark"
+	"github.com/LorenzoTavani/gopapageno"
+	"github.com/LorenzoTavani/gopapageno/benchmark"
 )
 
 const baseFolder = "../data/"

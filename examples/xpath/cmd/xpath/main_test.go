@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/giornetta/gopapageno"
-	"github.com/giornetta/gopapageno/examples/xpath"
-	x "github.com/giornetta/gopapageno/ext/xpath"
+	"github.com/LorenzoTavani/gopapageno"
+	"github.com/LorenzoTavani/gopapageno/examples/xpath"
+	x "github.com/LorenzoTavani/gopapageno/ext/xpath"
 )
 
 // cpu: AMD Ryzen 7 3750H with Radeon Vega Mobile Gfx

@@ -70,7 +70,7 @@ VALUE ([^"\\]|\\.)*
 
 import (
 	"math"
-	xpath "github.com/giornetta/gopapageno/ext/xpath"
+	xpath "github.com/LorenzoTavani/gopapageno/ext/xpath"
 )
 
 func getIdAndAttributesListFrom(text string) (id string, attribute *xpath.Attribute) {

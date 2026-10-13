@@ -44,13 +44,13 @@ done
 BASE_FILE="${BENCH_NAME}_json_c${COUNT}"
 
 echo "Running benchmarks for OPP with benchmark '$BENCH_NAME' and count $COUNT..."
-go test github.com/giornetta/gopapageno/examples/json/opp -bench=$BENCH_NAME -count=$COUNT > ${BASE_FILE}_opp.txt
+go test github.com/LorenzoTavani/gopapageno/examples/json/opp -bench=$BENCH_NAME -count=$COUNT > ${BASE_FILE}_opp.txt
 
 echo "Running benchmarks for AOPP with benchmark '$BENCH_NAME' and count $COUNT..."
-go test github.com/giornetta/gopapageno/examples/json/aopp -bench=$BENCH_NAME -count=$COUNT > ${BASE_FILE}_aopp.txt
+go test github.com/LorenzoTavani/gopapageno/examples/json/aopp -bench=$BENCH_NAME -count=$COUNT > ${BASE_FILE}_aopp.txt
 
 echo "Running benchmarks for COPP with benchmark '$BENCH_NAME' and count $COUNT..."
-go test github.com/giornetta/gopapageno/examples/json/copp -bench=$BENCH_NAME -count=$COUNT > ${BASE_FILE}_copp.txt
+go test github.com/LorenzoTavani/gopapageno/examples/json/copp -bench=$BENCH_NAME -count=$COUNT > ${BASE_FILE}_copp.txt
 
 echo "Generating figure ${BASE_FILE}.png"
 python3 ./scripts/combine_benchmarks.py ${BASE_FILE}_opp.txt ${BASE_FILE}_aopp.txt ${BASE_FILE}_copp.txt > ${BASE_FILE}_combine.txt

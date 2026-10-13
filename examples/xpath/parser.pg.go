@@ -2,7 +2,7 @@
 package xpath
 
 import (
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"strings"
 	"fmt"
 	"os"
@@ -10,7 +10,7 @@ import (
 )
 
 import (
-	"github.com/giornetta/gopapageno/ext/xpath"
+	"github.com/LorenzoTavani/gopapageno/ext/xpath"
 	"math"
 )
 

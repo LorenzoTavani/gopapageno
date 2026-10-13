@@ -1,5 +1,5 @@
 /*
-import "github.com/giornetta/gopapageno/automata"
+import "github.com/LorenzoTavani/gopapageno/automata"
 
 
 parserPreallocMem initializes all the memory pools required by the semantic function.

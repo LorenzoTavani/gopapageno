@@ -1,4 +1,4 @@
-module github.com/giornetta/gopapageno
+module github.com/LorenzoTavani/gopapageno
 
 go 1.24.0
 

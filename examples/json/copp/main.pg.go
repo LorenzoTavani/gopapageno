@@ -5,7 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"io"
 	"log"
 	"os"

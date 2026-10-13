@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 )
 
 type Entry[T any] struct {

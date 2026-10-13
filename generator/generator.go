@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 )
 
 const (
@@ -135,7 +135,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"io"
 	"log"
 	"os"
@@ -256,8 +256,8 @@ func emitBenchmarkFile(opts *Options, packageName string) error {
 
 	fmt.Fprintf(gFile, "package %s\n\n", packageName)
 	fmt.Fprintf(gFile, `import (
-	"github.com/giornetta/gopapageno"
-	"github.com/giornetta/gopapageno/benchmark"
+	"github.com/LorenzoTavani/gopapageno"
+	"github.com/LorenzoTavani/gopapageno/benchmark"
 	"runtime"
 	"testing"
 )

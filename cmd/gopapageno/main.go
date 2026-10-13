@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"io"
 	"log"
 	"os"
 
-	"github.com/giornetta/gopapageno/generator"
+	"github.com/LorenzoTavani/gopapageno/generator"
 )
 
 func main() {

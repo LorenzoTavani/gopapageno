@@ -1,7 +1,7 @@
 package gopapageno_test
 
 import (
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"testing"
 )
 

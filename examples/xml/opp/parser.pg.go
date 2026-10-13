@@ -2,7 +2,7 @@
 package main
 
 import (
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"strings"
 	"fmt"
 	"os"

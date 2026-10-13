@@ -35,7 +35,7 @@ tasks:
 
   benchmark:
     cmds:
-      - go test github.com/giornetta/gopapageno/examples/{{ .EXAMPLE }}/{{ .STRAT }} -bench=. -count={{ .COUNT }} -benchmem -timeout 2h -run=^$ > ./examples/{{ .EXAMPLE }}/benchmark_results/{{ .STRAT }}-{{ .FNAME }}.txt
+      - go test github.com/LorenzoTavani/gopapageno/examples/{{ .EXAMPLE }}/{{ .STRAT }} -bench=. -count={{ .COUNT }} -benchmem -timeout 2h -run=^$ > ./examples/{{ .EXAMPLE }}/benchmark_results/{{ .STRAT }}-{{ .FNAME }}.txt
 
   benchmark-all:
     cmds:

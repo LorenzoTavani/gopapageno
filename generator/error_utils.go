@@ -3,7 +3,7 @@ package generator
 import (
 	"fmt"
 	"strings"
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 )
 
 func LogPrecedenceConflict(p gopapageno.Precedence, c conflict) {

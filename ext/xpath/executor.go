@@ -9,7 +9,7 @@ import (
 	"runtime/debug"
 	"math"
 
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 )
 
 const defaultExecutorNumberOfThreads = 1

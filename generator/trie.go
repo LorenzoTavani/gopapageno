@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 )
 
 // triePtrNode has a TokenType as key and a pointer to a treeNode as value.

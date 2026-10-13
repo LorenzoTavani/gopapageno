@@ -2,7 +2,7 @@ package generator
 
 import (
 	"fmt"
-	"github.com/giornetta/gopapageno"
+	"github.com/LorenzoTavani/gopapageno"
 	"math"
 	"slices"
 	"strings"
