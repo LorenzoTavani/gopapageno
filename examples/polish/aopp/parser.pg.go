@@ -5,6 +5,8 @@ import (
 	"github.com/giornetta/gopapageno"
 	"strings"
 	"fmt"
+	"os"
+	"reflect"
 )
 
 import (
@@ -59,6 +61,97 @@ const (
 	SPACE
 )
 
+func DumpGraph[ValueType any](root *gopapageno.Token, f *os.File) {
+	sb := strings.Builder{}
+	sb.WriteString("digraph parse_tree {\n")
+	sb.WriteString("ratio = fill;\n")
+	sb.WriteString("node [style=filled];\n")
+
+	var graphPrintRec func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int)
+	graphPrintRec = func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int) {
+		if t == nil {
+			return
+		}
+
+		if p == nil {
+			graphPrintRec(t.Child, t, sb, i+1)
+			return
+		}
+
+		var t_name, t_color, p_name, p_color string
+
+		switch p.Type {
+		case Args:
+			p_name, p_color = "Args", "0.408 0.498 1.000"
+		case BinaryOp:
+			p_name, p_color = "BinaryOp", "0.408 0.498 1.000"
+		case Expression:
+			p_name, p_color = "Expression", "0.408 0.498 1.000"
+		case ExpressionList:
+			p_name, p_color = "ExpressionList", "0.408 0.498 1.000"
+		case gopapageno.TokenEmpty:
+			p_name, p_color = "__EMPTY__", "0.408 0.498 1.000"
+		case LPAREN:
+			p_name, p_color = "LPAREN", "0.641 0.212 1.000"
+		case MINUS:
+			p_name, p_color = "MINUS", "0.641 0.212 1.000"
+		case NEWLINE:
+			p_name, p_color = "NEWLINE", "0.641 0.212 1.000"
+		case NUMBER:
+			p_name, p_color = "NUMBER", "0.641 0.212 1.000"
+		case PLUS:
+			p_name, p_color = "PLUS", "0.641 0.212 1.000"
+		case RPAREN:
+			p_name, p_color = "RPAREN", "0.641 0.212 1.000"
+		case SPACE:
+			p_name, p_color = "SPACE", "0.641 0.212 1.000"
+		case gopapageno.TokenTerm:
+			p_name, p_color = "__TERM__", "0.641 0.212 1.000"
+		}
+
+		switch t.Type {
+		case Args:
+			t_name, t_color = "Args", "0.408 0.498 1.000"
+		case BinaryOp:
+			t_name, t_color = "BinaryOp", "0.408 0.498 1.000"
+		case Expression:
+			t_name, t_color = "Expression", "0.408 0.498 1.000"
+		case ExpressionList:
+			t_name, t_color = "ExpressionList", "0.408 0.498 1.000"
+		case gopapageno.TokenEmpty:
+			t_name, t_color = "__EMPTY__", "0.408 0.498 1.000"
+		case LPAREN:
+			t_name, t_color = "LPAREN", "0.641 0.212 1.000"
+		case MINUS:
+			t_name, t_color = "MINUS", "0.641 0.212 1.000"
+		case NEWLINE:
+			t_name, t_color = "NEWLINE", "0.641 0.212 1.000"
+		case NUMBER:
+			t_name, t_color = "NUMBER", "0.641 0.212 1.000"
+		case PLUS:
+			t_name, t_color = "PLUS", "0.641 0.212 1.000"
+		case RPAREN:
+			t_name, t_color = "RPAREN", "0.641 0.212 1.000"
+		case SPACE:
+			t_name, t_color = "SPACE", "0.641 0.212 1.000"
+		case gopapageno.TokenTerm:
+			t_name, t_color = "__TERM__", "0.641 0.212 1.000"
+		}
+
+		sb.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", p, t))
+		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", p, p_name, p_color))
+		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", t, t_name, t_color))
+
+		graphPrintRec(t.Child, t, sb, i+1)
+		graphPrintRec(t.Next, p, sb, i)
+	}
+	graphPrintRec(root, nil, &sb, 0)
+	sb.WriteString("}\n")
+
+	fmt.Fprint(f, sb.String())
+}
+
+
 func SprintToken[ValueType any](root *gopapageno.Token) string {
 	var sprintRec func(t *gopapageno.Token, sb *strings.Builder, indent string)
 
@@ -108,15 +201,10 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 		}
 
 		if t.Value != nil {
-	        switch v := t.Value.(type) {
-	        case *int64:
-	            sb.WriteString(fmt.Sprintf(": %v", *v))
-	        case *string:
-	            sb.WriteString(fmt.Sprintf(": %v", *v))
-	        }
-
-			if v, ok := any(t.Value).(*ValueType); ok {
-				sb.WriteString(fmt.Sprintf(": %v", *v))
+			if rv := reflect.ValueOf(t.Value); rv.Kind() == reflect.Pointer && !rv.IsNil() {
+				sb.WriteString(fmt.Sprintf(": %v", rv.Elem().Interface()))
+			} else {
+				sb.WriteString(fmt.Sprintf(": %v", t.Value))
 			}
 		}
 		
