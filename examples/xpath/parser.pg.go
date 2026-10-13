@@ -6,6 +6,7 @@ import (
 	"strings"
 	"fmt"
 	"os"
+	"reflect"
 )
 
 import (
@@ -154,8 +155,10 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 		}
 
 		if t.Value != nil {
-			if v, ok := any(t.Value).(*ValueType); ok {
-				sb.WriteString(fmt.Sprintf(": %v", *v))
+			if rv := reflect.ValueOf(t.Value); rv.Kind() == reflect.Pointer && !rv.IsNil() {
+				sb.WriteString(fmt.Sprintf(": %v", rv.Elem().Interface()))
+			} else {
+				sb.WriteString(fmt.Sprintf(": %v", t.Value))
 			}
 		}
 		
