@@ -5,7 +5,6 @@ import (
 	"github.com/giornetta/gopapageno"
 	"strings"
 	"fmt"
-	"os"
 )
 
 
@@ -25,89 +24,6 @@ const (
 	OpenCloseParams
 	OpenParams
 )
-
-func DumpGraph[ValueType any](root *gopapageno.Token, f *os.File) {
-	sb := strings.Builder{}
-	sb.WriteString("digraph parse_tree {\n")
-	sb.WriteString("ratio = fill;\n")
-	sb.WriteString("node [style=filled];\n")
-
-	var graphPrintRec func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int)
-	graphPrintRec = func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int) {
-		if t == nil {
-			return
-		}
-
-		if p == nil {
-			graphPrintRec(t.Child, t, sb, i+1)
-			return
-		}
-
-		var t_name, t_color, p_name, p_color string
-
-		switch p.Type {
-		case ELEM:
-			p_name, p_color = "ELEM", "0.408 0.498 1.000"
-		case gopapageno.TokenEmpty:
-			p_name, p_color = "__EMPTY__", "0.408 0.498 1.000"
-		case AlternativeClose:
-			p_name, p_color = "AlternativeClose", "0.641 0.212 1.000"
-		case CloseBracket:
-			p_name, p_color = "CloseBracket", "0.641 0.212 1.000"
-		case CloseParams:
-			p_name, p_color = "CloseParams", "0.641 0.212 1.000"
-		case Infos:
-			p_name, p_color = "Infos", "0.641 0.212 1.000"
-		case OpenBracket:
-			p_name, p_color = "OpenBracket", "0.641 0.212 1.000"
-		case OpenCloseInfo:
-			p_name, p_color = "OpenCloseInfo", "0.641 0.212 1.000"
-		case OpenCloseParams:
-			p_name, p_color = "OpenCloseParams", "0.641 0.212 1.000"
-		case OpenParams:
-			p_name, p_color = "OpenParams", "0.641 0.212 1.000"
-		case gopapageno.TokenTerm:
-			p_name, p_color = "__TERM__", "0.641 0.212 1.000"
-		}
-
-		switch t.Type {
-		case ELEM:
-			t_name, t_color = "ELEM", "0.408 0.498 1.000"
-		case gopapageno.TokenEmpty:
-			t_name, t_color = "__EMPTY__", "0.408 0.498 1.000"
-		case AlternativeClose:
-			t_name, t_color = "AlternativeClose", "0.641 0.212 1.000"
-		case CloseBracket:
-			t_name, t_color = "CloseBracket", "0.641 0.212 1.000"
-		case CloseParams:
-			t_name, t_color = "CloseParams", "0.641 0.212 1.000"
-		case Infos:
-			t_name, t_color = "Infos", "0.641 0.212 1.000"
-		case OpenBracket:
-			t_name, t_color = "OpenBracket", "0.641 0.212 1.000"
-		case OpenCloseInfo:
-			t_name, t_color = "OpenCloseInfo", "0.641 0.212 1.000"
-		case OpenCloseParams:
-			t_name, t_color = "OpenCloseParams", "0.641 0.212 1.000"
-		case OpenParams:
-			t_name, t_color = "OpenParams", "0.641 0.212 1.000"
-		case gopapageno.TokenTerm:
-			t_name, t_color = "__TERM__", "0.641 0.212 1.000"
-		}
-
-		sb.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", p, t))
-		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", p, p_name, p_color))
-		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", t, t_name, t_color))
-
-		graphPrintRec(t.Child, t, sb, i+1)
-		graphPrintRec(t.Next, p, sb, i)
-	}
-	graphPrintRec(root, nil, &sb, 0)
-	sb.WriteString("}\n")
-
-	fmt.Fprint(f, sb.String())
-}
-
 
 func SprintToken[ValueType any](root *gopapageno.Token) string {
 	var sprintRec func(t *gopapageno.Token, sb *strings.Builder, indent string)
@@ -156,8 +72,6 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 		if t.Value != nil {
 			if v, ok := any(t.Value).(*ValueType); ok {
 				sb.WriteString(fmt.Sprintf(": %v", *v))
-			} else {
-				sb.WriteString(fmt.Sprintf("%v", v))
 			}
 		}
 		

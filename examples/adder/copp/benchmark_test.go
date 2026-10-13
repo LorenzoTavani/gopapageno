@@ -1,50 +1,33 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/giornetta/gopapageno"
 	"github.com/giornetta/gopapageno/benchmark"
-	"runtime"
-	"testing"
 )
 
 const baseFolder = "../data/"
 
-const (
-	fileMB   = "1MB.txt"
-	file10MB = "10MB.txt"
-)
-
-const (
-	resultMB   = (1 + 2 + 3 + 11 + 222 + 3333 + (1 + 2)) * 26000
-	result10MB = (1 + 2 + 3 + 11 + 222 + 3333 + (1 + 2)) * 260000
-)
-
 var entries = []*benchmark.Entry[int64]{
 	{
-		Filename:       baseFolder + fileMB,
-		ParallelFactor: gopapageno.DefaultParallelFactor,
-		AvgTokenLength: gopapageno.DefaultAverageTokenLength,
-		Result:         resultMB,
+		Filename:       baseFolder + "1MB.txt",
+		ParallelFactor: 1,
+		AvgTokenLength: 2,
+		Result:         (1 + 2 + 3 + 11 + 222 + 3333 + (1 + 2)) * 26000,
 	},
 	{
-		Filename:       baseFolder + file10MB,
-		ParallelFactor: gopapageno.DefaultParallelFactor,
-		AvgTokenLength: gopapageno.DefaultAverageTokenLength,
-		Result:         result10MB,
+		Filename:       baseFolder + "10MB.txt",
+		ParallelFactor: 1,
+		AvgTokenLength: 2,
+		Result:         (1 + 2 + 3 + 11 + 222 + 3333 + (1 + 2)) * 260000,
 	},
 }
 
 func BenchmarkParse(b *testing.B) {
-	benchmark.Runner[int64](b, gopapageno.COPP, NewLexer, NewGrammar, entries)
+	benchmark.Runner(b, gopapageno.COPP, gopapageno.ReductionParallel, NewLexer, NewGrammar, entries)
 }
 
-func TestProfile(t *testing.T) {
-	opts := &gopapageno.RunOptions{
-		Concurrency:       runtime.NumCPU(),
-		AvgTokenLength:    gopapageno.DefaultAverageTokenLength,
-		ReductionStrategy: gopapageno.ReductionParallel,
-		ParallelFactor:    gopapageno.DefaultParallelFactor,
-	}
-
-	benchmark.Profile(t, NewLexer, NewGrammar, opts, baseFolder+fileMB)
+func BenchmarkParseOnly(b *testing.B) {
+	benchmark.ParserRunner(b, gopapageno.COPP, gopapageno.ReductionParallel, NewLexer, NewGrammar, entries)
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/giornetta/gopapageno"
 	"strings"
 	"fmt"
-	"os"
 )
 
 import (
@@ -39,77 +38,6 @@ const (
 	PLUS
 	RPAR
 )
-
-func DumpGraph[ValueType any](root *gopapageno.Token, f *os.File) {
-	sb := strings.Builder{}
-	sb.WriteString("digraph parse_tree {\n")
-	sb.WriteString("ratio = fill;\n")
-	sb.WriteString("node [style=filled];\n")
-
-	var graphPrintRec func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int)
-	graphPrintRec = func(t *gopapageno.Token, p *gopapageno.Token, sb *strings.Builder, i int) {
-		if t == nil {
-			return
-		}
-
-		if p == nil {
-			graphPrintRec(t.Child, t, sb, i+1)
-			return
-		}
-
-		var t_name, t_color, p_name, p_color string
-
-		switch p.Type {
-		case E:
-			p_name, p_color = "E", "0.408 0.498 1.000"
-		case S:
-			p_name, p_color = "S", "0.408 0.498 1.000"
-		case gopapageno.TokenEmpty:
-			p_name, p_color = "__EMPTY__", "0.408 0.498 1.000"
-		case LPAR:
-			p_name, p_color = "LPAR", "0.641 0.212 1.000"
-		case NUMBER:
-			p_name, p_color = "NUMBER", "0.641 0.212 1.000"
-		case PLUS:
-			p_name, p_color = "PLUS", "0.641 0.212 1.000"
-		case RPAR:
-			p_name, p_color = "RPAR", "0.641 0.212 1.000"
-		case gopapageno.TokenTerm:
-			p_name, p_color = "__TERM__", "0.641 0.212 1.000"
-		}
-
-		switch t.Type {
-		case E:
-			t_name, t_color = "E", "0.408 0.498 1.000"
-		case S:
-			t_name, t_color = "S", "0.408 0.498 1.000"
-		case gopapageno.TokenEmpty:
-			t_name, t_color = "__EMPTY__", "0.408 0.498 1.000"
-		case LPAR:
-			t_name, t_color = "LPAR", "0.641 0.212 1.000"
-		case NUMBER:
-			t_name, t_color = "NUMBER", "0.641 0.212 1.000"
-		case PLUS:
-			t_name, t_color = "PLUS", "0.641 0.212 1.000"
-		case RPAR:
-			t_name, t_color = "RPAR", "0.641 0.212 1.000"
-		case gopapageno.TokenTerm:
-			t_name, t_color = "__TERM__", "0.641 0.212 1.000"
-		}
-
-		sb.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", p, t))
-		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", p, p_name, p_color))
-		sb.WriteString(fmt.Sprintf("\"%p\" [label=\"%s\" color=\"%s\"];\n", t, t_name, t_color))
-
-		graphPrintRec(t.Child, t, sb, i+1)
-		graphPrintRec(t.Next, p, sb, i)
-	}
-	graphPrintRec(root, nil, &sb, 0)
-	sb.WriteString("}\n")
-
-	fmt.Fprint(f, sb.String())
-}
-
 
 func SprintToken[ValueType any](root *gopapageno.Token) string {
 	var sprintRec func(t *gopapageno.Token, sb *strings.Builder, indent string)
@@ -152,8 +80,6 @@ func SprintToken[ValueType any](root *gopapageno.Token) string {
 		if t.Value != nil {
 			if v, ok := any(t.Value).(*ValueType); ok {
 				sb.WriteString(fmt.Sprintf(": %v", *v))
-			} else {
-				sb.WriteString(fmt.Sprintf("%v", v))
 			}
 		}
 		
