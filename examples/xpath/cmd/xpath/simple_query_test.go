@@ -32,7 +32,7 @@ func ExpectResults(t *testing.T, source, query string, results []string) {
 	}
 	for i := range results {
 		if string(source[res[i].Start():res[i].End()+1]) != results[i] {
-			t.Fatalf("result[%d] did not match, got: %v", i, string(source[res[0].Start():res[0].End()]))
+			t.Fatalf("result[%d] did not match, got: %v", i, string(source[res[i].Start():res[i].End()+1]))
 		}
 	}
 }
@@ -114,7 +114,7 @@ func TestMatchPredicateOrClause(t *testing.T) {
 		t,
 		`<body><div class="row"></div><div class="col"><p></p></div></body>`,
 		`//div[@class="col" or @class="row"]`,
-		[]string{`<div class="row"><p></p></div>`, `<div class="col"></div>`},
+		[]string{`<div class="row"></div>`, `<div class="col"><p></p></div>`},
 	)
 }
 
