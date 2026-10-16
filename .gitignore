@@ -233,3 +233,4 @@ tags
 TAGS
 *.prof
 *.bak
+.vscode/
