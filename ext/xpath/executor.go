@@ -8,6 +8,7 @@ import (
 
 	"math"
 	"runtime/debug"
+	"sort"
 
 	"github.com/LorenzoTavani/gopapageno"
 )
@@ -220,6 +221,12 @@ func (executor *executor) retrieveResults() (results []Position) {
 		}
 	}
 
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].Start() != results[j].Start() {
+			return results[i].Start() < results[j].Start()
+		}
+		return results[i].End() < results[j].End()
+	})
 	return
 }
 

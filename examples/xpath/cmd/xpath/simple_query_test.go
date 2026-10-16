@@ -109,15 +109,14 @@ func TestMatchPredicateAndClause(t *testing.T) {
 	)
 }
 
-// NOTE(vvihorev): this test is flaky because of results order
-// func TestMatchPredicateOrClause(t *testing.T) {
-// 	ExpectResults(
-// 		t,
-// 		`<body><div class="row"></div><div class="col"><p></p></div></body>`,
-// 		`//div[@class="col" or @class="row"]`,
-// 		[]string{`<div class="col"><p></p></div>`, `<div class="row"></div>`},
-// 	)
-// }
+func TestMatchPredicateOrClause(t *testing.T) {
+	ExpectResults(
+		t,
+		`<body><div class="row"></div><div class="col"><p></p></div></body>`,
+		`//div[@class="col" or @class="row"]`,
+		[]string{`<div class="row"><p></p></div>`, `<div class="col"></div>`},
+	)
+}
 
 func TestMatchPredicateNotClause(t *testing.T) {
 	ExpectResults(
