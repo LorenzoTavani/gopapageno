@@ -3,7 +3,6 @@ package xpath
 import "testing"
 
 func TestSwapbackArrayRemoveMiddle(t *testing.T) {
-	t.Skip("known bug: setIndex has a value receiver, see KNOWN_ISSUES.md")
 	var sa swapbackArray[speculation]
 	s1 := speculation{evaluationsCount: 1}
 	s2 := speculation{evaluationsCount: 2}
@@ -11,7 +10,7 @@ func TestSwapbackArrayRemoveMiddle(t *testing.T) {
 	sa.append(s1)
 	sa.append(s2)
 	sa.append(s3)
-	sa.remove(s2)
+	sa.removeAt(1)
 
 	var got []int
 	for i := 0; i < sa.size; i++ {

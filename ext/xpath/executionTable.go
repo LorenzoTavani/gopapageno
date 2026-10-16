@@ -115,8 +115,8 @@ func (er *executionRecord) addExecutionThread(ctx, sol *NonTerminal, pp pathPatt
 	return
 }
 
-func (er *executionRecord) removeExecutionThread(et executionThread) {
-	er.threads.remove(et)
+func (er *executionRecord) removeExecutionThreadAt(i int) {
+	er.threads.removeAt(i)
 }
 
 func (er *executionRecord) hasExecutionThreadRunningFor(ctx *NonTerminal) bool {

@@ -103,7 +103,8 @@ func Reduce(reducedNT, generativeNT, wrappedNT *NonTerminal) {
 					}
 
 				} else {
-					updatingExecutionTable.records[id].removeExecutionThread(updatingExecutionTable.records[id].threads.array[i])
+					updatingExecutionTable.records[id].removeExecutionThreadAt(i)
+					i--
 				}
 			}
 		}
@@ -116,7 +117,8 @@ func Reduce(reducedNT, generativeNT, wrappedNT *NonTerminal) {
 			for i := 0; i < updatingExecutionTable.records[id].threads.size; i++ {
 				// If a thread speculation is unfounded, stop the speculative execution thread, and all its Children recursively
 				if areSpeculationsFounded := updatingExecutionTable.records[id].threads.array[i].checkAndUpdateSpeculations(updatingExecutionTable.evaluateID); !areSpeculationsFounded {
-					updatingExecutionTable.records[id].removeExecutionThread(updatingExecutionTable.records[id].threads.array[i])
+					updatingExecutionTable.records[id].removeExecutionThreadAt(i)
+					i--
 				}
 			}
 
@@ -146,7 +148,8 @@ func Reduce(reducedNT, generativeNT, wrappedNT *NonTerminal) {
 					if DEBUG {
 						logger.Printf("   added a context-solution: [ %v, %v ] to record: %d %v", updatingExecutionTable.records[id].threads.array[i].ctx.String(), updatingExecutionTable.records[id].threads.array[i].sol.String(), i, updatingExecutionTable.records[id].String())
 					}
-					updatingExecutionTable.records[id].removeExecutionThread(updatingExecutionTable.records[id].threads.array[i])
+					updatingExecutionTable.records[id].removeExecutionThreadAt(i)
+					i--
 				}
 			}
 		}

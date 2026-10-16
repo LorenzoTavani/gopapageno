@@ -12,8 +12,6 @@ type executionThread struct {
 	sol          *NonTerminal
 	pp           pathPattern
 	speculations swapbackArray[speculation]
-
-	index int // index of the thread in executionThreadList
 }
 
 // concrete execution thread list implementation
@@ -26,15 +24,6 @@ type speculation struct {
 	evaluationsCount int
 	prd              predicate
 	ctx              NonTerminal
-	index            int
-}
-
-func (et executionThread) getIndex() int {
-	return et.index
-}
-
-func (et executionThread) setIndex(i int) {
-	et.index = i
 }
 
 func (et *executionThread) String() string {
@@ -50,16 +39,8 @@ func (et *executionThread) addSpeculation(prd *predicate, ctx NonTerminal) {
 	et.speculations.append(sp)
 }
 
-func (et *executionThread) removeSpeculation(sp speculation) {
-	et.speculations.remove(sp)
-}
-
-func (s speculation) setIndex(i int) {
-	s.index = i
-}
-
-func (s speculation) getIndex() int {
-	return s.index
+func (et *executionThread) removeSpeculationAt(i int) {
+	et.speculations.removeAt(i)
 }
 
 func (sp *speculation) String() string {
@@ -87,11 +68,11 @@ func (et *executionThread) checkAndUpdateSpeculations(v evaluator) (areSpeculati
 		switch speculationValue {
 		case False:
 			areSpeculationsFounded = false
-			et.removeSpeculation(et.speculations.array[i])
+			et.removeSpeculationAt(i)
 			// TODO(vvihorev): need to double check if this should break
 			break
 		case True:
-			et.removeSpeculation(et.speculations.array[i])
+			et.removeSpeculationAt(i)
 		case Undefined:
 			i++
 		}
