@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"runtime/debug"
 	"math"
+	"runtime/debug"
 
 	"github.com/LorenzoTavani/gopapageno"
 )
@@ -223,12 +223,11 @@ func (executor *executor) retrieveResults() (results []Position) {
 	return
 }
 
-
 func PrepareBenchmark(runner *gopapageno.Runner, source []byte, numberOfThreads int) *executor {
 	executor := &executor{
 		numberOfThreads: numberOfThreads,
 		runner:          runner,
-		source: source,
+		source:          source,
 	}
 
 	udpeGlobalTable = new(globalUdpeTable)
@@ -236,7 +235,7 @@ func PrepareBenchmark(runner *gopapageno.Runner, source []byte, numberOfThreads 
 
 	return executor
 }
- 
+
 func (executor *executor) ExecuteBenchmark() []Position {
 	debug.SetGCPercent(-1)
 	debug.SetMemoryLimit(math.MaxInt64)
@@ -356,7 +355,7 @@ func (executor *executor) A4() {
 
 	node := predNode{op: atom()}
 	p := &predicate{
-		root: &node,
+		root:        &node,
 		undoneAtoms: map[int]*predNode{fpeID: &node},
 	}
 
@@ -389,7 +388,7 @@ func (executor *executor) A5() {
 
 	node := predNode{op: atom()}
 	p := &predicate{
-		root: &node,
+		root:        &node,
 		undoneAtoms: map[int]*predNode{fpeID: &node},
 	}
 
@@ -439,7 +438,7 @@ func (executor *executor) A6() {
 	node1.parent = &nodeAnd
 	node2.parent = &nodeAnd
 	p := &predicate{
-		root: &nodeAnd,
+		root:        &nodeAnd,
 		undoneAtoms: map[int]*predNode{fpe1ID: &node1, fpe2ID: &node2},
 	}
 
@@ -485,7 +484,7 @@ func (executor *executor) A7() {
 	node1.parent = &nodeOr
 	node2.parent = &nodeOr
 	p := &predicate{
-		root: &nodeOr,
+		root:        &nodeOr,
 		undoneAtoms: map[int]*predNode{fpe1ID: &node1, fpe2ID: &node2},
 	}
 
@@ -612,7 +611,7 @@ func (executor *executor) B1() {
 
 	node := predNode{op: atom()}
 	p := &predicate{
-		root: &node,
+		root:        &node,
 		undoneAtoms: map[int]*predNode{rpe1ID: &node},
 	}
 
