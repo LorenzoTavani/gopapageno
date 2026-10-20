@@ -81,12 +81,12 @@ Test : IDENT {
 };
 
 OrExpr : AndExpr {}
-  | AndExpr OR AndExpr {
+  | OrExpr OR AndExpr {
 	$$.Value = combine(or(), toPredicate($1.Value), toPredicate($3.Value))
 };
 
 AndExpr : Factor {}
-  | Factor AND Factor {
+  | AndExpr AND Factor {
 	$$.Value = combine(and(), toPredicate($1.Value), toPredicate($3.Value))
 };
 

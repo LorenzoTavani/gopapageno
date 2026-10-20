@@ -437,11 +437,20 @@ func NewGrammar() *gopapageno.Grammar {
 		{OrExpr, []gopapageno.TokenType{AndExpr_Factor_OrExpr_Step_Test, OR, AndExpr_Factor_OrExpr_Step}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_Factor_OrExpr_Step_Test, OR, AndExpr_Factor_OrExpr_Step_Test}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_Factor_OrExpr_Step_Test, OR, AndExpr_OrExpr}, gopapageno.RuleSimple},
+		{AndExpr_OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, AND, AndExpr_Factor_OrExpr}, gopapageno.RuleSimple},
+		{AndExpr_OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, AND, AndExpr_Factor_OrExpr_Path}, gopapageno.RuleSimple},
+		{AndExpr_OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, AND, AndExpr_Factor_OrExpr_Step}, gopapageno.RuleSimple},
+		{AndExpr_OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, AND, AndExpr_Factor_OrExpr_Step_Test}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, OR, AndExpr_Factor_OrExpr}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, OR, AndExpr_Factor_OrExpr_Path}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, OR, AndExpr_Factor_OrExpr_Step}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, OR, AndExpr_Factor_OrExpr_Step_Test}, gopapageno.RuleSimple},
 		{OrExpr, []gopapageno.TokenType{AndExpr_OrExpr, OR, AndExpr_OrExpr}, gopapageno.RuleSimple},
+		{OrExpr, []gopapageno.TokenType{OrExpr, OR, AndExpr_Factor_OrExpr}, gopapageno.RuleSimple},
+		{OrExpr, []gopapageno.TokenType{OrExpr, OR, AndExpr_Factor_OrExpr_Path}, gopapageno.RuleSimple},
+		{OrExpr, []gopapageno.TokenType{OrExpr, OR, AndExpr_Factor_OrExpr_Step}, gopapageno.RuleSimple},
+		{OrExpr, []gopapageno.TokenType{OrExpr, OR, AndExpr_Factor_OrExpr_Step_Test}, gopapageno.RuleSimple},
+		{OrExpr, []gopapageno.TokenType{OrExpr, OR, AndExpr_OrExpr}, gopapageno.RuleSimple},
 		{AndExpr_Factor_OrExpr_Path, []gopapageno.TokenType{ANCESTOR, AndExpr_Factor_OrExpr_Step}, gopapageno.RuleSimple},
 		{AndExpr_Factor_OrExpr_Path, []gopapageno.TokenType{ANCESTOR, AndExpr_Factor_OrExpr_Step_Test}, gopapageno.RuleSimple},
 		{AndExpr_Factor_OrExpr_Step_Test, []gopapageno.TokenType{AT, IDENT}, gopapageno.RuleSimple},
@@ -471,12 +480,12 @@ func NewGrammar() *gopapageno.Grammar {
 		{AndExpr_Factor_OrExpr_Step_Test, []gopapageno.TokenType{TEXT}, gopapageno.RuleSimple},
 		{AndExpr_Factor_OrExpr_Step_Test, []gopapageno.TokenType{TEXT, EQ, STRING}, gopapageno.RuleSimple},
 	}
-	compressedRules := []uint16{0, 0, 14, 1, 31, 2, 89, 3, 207, 4, 265, 5, 388, 32769, 421, 32771, 434, 32772, 452, 32773, 465, 32775, 478, 32777, 481, 32778, 544, 32780, 627, 32784, 640, 0, 0, 2, 32770, 38, 32779, 61, 0, 0, 4, 1, 49, 2, 52, 3, 55, 4, 58, 5, 0, 0, 5, 1, 0, 5, 2, 0, 5, 3, 0, 0, 0, 5, 1, 74, 2, 77, 3, 80, 4, 83, 5, 86, 6, 4, 0, 6, 5, 0, 6, 6, 0, 6, 7, 0, 6, 8, 0, 0, 0, 6, 32769, 104, 32770, 117, 32772, 140, 32773, 153, 32779, 166, 32780, 194, 0, 0, 2, 3, 111, 4, 114, 2, 9, 0, 2, 10, 0, 0, 0, 4, 1, 128, 2, 131, 3, 134, 4, 137, 5, 11, 0, 5, 12, 0, 5, 13, 0, 5, 14, 0, 0, 0, 2, 3, 147, 4, 150, 2, 15, 0, 2, 16, 0, 0, 0, 2, 3, 160, 4, 163, 2, 17, 0, 2, 18, 0, 0, 0, 5, 1, 179, 2, 182, 3, 185, 4, 188, 5, 191, 6, 19, 0, 6, 20, 0, 6, 21, 0, 6, 22, 0, 6, 23, 0, 0, 0, 2, 3, 201, 4, 204, 2, 24, 0, 2, 25, 0, 0, 0, 2, 32770, 214, 32779, 237, 0, 0, 4, 1, 225, 2, 228, 3, 231, 4, 234, 5, 26, 0, 5, 27, 0, 5, 28, 0, 5, 29, 0, 0, 0, 5, 1, 250, 2, 253, 3, 256, 4, 259, 5, 262, 6, 30, 0, 6, 31, 0, 6, 32, 0, 6, 33, 0, 6, 34, 0, 0, 0, 3, 32770, 274, 32776, 297, 32779, 360, 0, 0, 4, 1, 285, 2, 288, 3, 291, 4, 294, 5, 35, 0, 5, 36, 0, 5, 37, 0, 5, 38, 0, 0, 0, 6, 1, 312, 2, 320, 3, 328, 4, 336, 5, 344, 6, 352, 0, 0, 1, 32781, 317, 3, 39, 0, 0, 0, 1, 32781, 325, 3, 40, 0, 0, 0, 1, 32781, 333, 3, 41, 0, 0, 0, 1, 32781, 341, 3, 42, 0, 0, 0, 1, 32781, 349, 3, 43, 0, 0, 0, 1, 32781, 357, 3, 44, 0, 0, 0, 5, 1, 373, 2, 376, 3, 379, 4, 382, 5, 385, 6, 45, 0, 6, 46, 0, 6, 47, 0, 6, 48, 0, 6, 49, 0, 0, 0, 1, 32779, 393, 0, 0, 5, 1, 406, 2, 409, 3, 412, 4, 415, 5, 418, 6, 50, 0, 6, 51, 0, 6, 52, 0, 6, 53, 0, 6, 54, 0, 0, 0, 2, 3, 428, 4, 431, 2, 55, 0, 2, 56, 0, 0, 0, 1, 32775, 439, 4, 57, 1, 32774, 444, 0, 0, 1, 32783, 449, 4, 58, 0, 0, 0, 2, 3, 459, 4, 462, 2, 59, 0, 2, 60, 0, 0, 0, 2, 3, 472, 4, 475, 2, 61, 0, 2, 62, 0, 4, 63, 0, 0, 0, 6, 1, 496, 2, 504, 3, 512, 4, 520, 5, 528, 6, 536, 0, 0, 1, 32782, 501, 1, 64, 0, 0, 0, 1, 32782, 509, 1, 65, 0, 0, 0, 1, 32782, 517, 1, 66, 0, 0, 0, 1, 32782, 525, 1, 67, 0, 0, 0, 1, 32782, 533, 1, 68, 0, 0, 0, 1, 32782, 541, 1, 69, 0, 0, 0, 4, 2, 555, 3, 558, 4, 561, 32777, 564, 1, 70, 0, 1, 71, 0, 1, 72, 0, 0, 0, 6, 1, 579, 2, 587, 3, 595, 4, 603, 5, 611, 6, 619, 0, 0, 1, 32782, 584, 1, 73, 0, 0, 0, 1, 32782, 592, 1, 74, 0, 0, 0, 1, 32782, 600, 1, 75, 0, 0, 0, 1, 32782, 608, 1, 76, 0, 0, 0, 1, 32782, 616, 1, 77, 0, 0, 0, 1, 32782, 624, 1, 78, 0, 0, 0, 2, 3, 634, 4, 637, 2, 79, 0, 2, 80, 0, 4, 81, 1, 32774, 645, 0, 0, 1, 32783, 650, 4, 82, 0	}
+	compressedRules := []uint16{0, 0, 15, 1, 33, 2, 91, 3, 209, 4, 267, 5, 390, 6, 448, 32769, 481, 32771, 494, 32772, 512, 32773, 525, 32775, 538, 32777, 541, 32778, 604, 32780, 687, 32784, 700, 0, 0, 2, 32770, 40, 32779, 63, 0, 0, 4, 1, 51, 2, 54, 3, 57, 4, 60, 5, 0, 0, 5, 1, 0, 5, 2, 0, 5, 3, 0, 0, 0, 5, 1, 76, 2, 79, 3, 82, 4, 85, 5, 88, 6, 4, 0, 6, 5, 0, 6, 6, 0, 6, 7, 0, 6, 8, 0, 0, 0, 6, 32769, 106, 32770, 119, 32772, 142, 32773, 155, 32779, 168, 32780, 196, 0, 0, 2, 3, 113, 4, 116, 2, 9, 0, 2, 10, 0, 0, 0, 4, 1, 130, 2, 133, 3, 136, 4, 139, 5, 11, 0, 5, 12, 0, 5, 13, 0, 5, 14, 0, 0, 0, 2, 3, 149, 4, 152, 2, 15, 0, 2, 16, 0, 0, 0, 2, 3, 162, 4, 165, 2, 17, 0, 2, 18, 0, 0, 0, 5, 1, 181, 2, 184, 3, 187, 4, 190, 5, 193, 6, 19, 0, 6, 20, 0, 6, 21, 0, 6, 22, 0, 6, 23, 0, 0, 0, 2, 3, 203, 4, 206, 2, 24, 0, 2, 25, 0, 0, 0, 2, 32770, 216, 32779, 239, 0, 0, 4, 1, 227, 2, 230, 3, 233, 4, 236, 5, 26, 0, 5, 27, 0, 5, 28, 0, 5, 29, 0, 0, 0, 5, 1, 252, 2, 255, 3, 258, 4, 261, 5, 264, 6, 30, 0, 6, 31, 0, 6, 32, 0, 6, 33, 0, 6, 34, 0, 0, 0, 3, 32770, 276, 32776, 299, 32779, 362, 0, 0, 4, 1, 287, 2, 290, 3, 293, 4, 296, 5, 35, 0, 5, 36, 0, 5, 37, 0, 5, 38, 0, 0, 0, 6, 1, 314, 2, 322, 3, 330, 4, 338, 5, 346, 6, 354, 0, 0, 1, 32781, 319, 3, 39, 0, 0, 0, 1, 32781, 327, 3, 40, 0, 0, 0, 1, 32781, 335, 3, 41, 0, 0, 0, 1, 32781, 343, 3, 42, 0, 0, 0, 1, 32781, 351, 3, 43, 0, 0, 0, 1, 32781, 359, 3, 44, 0, 0, 0, 5, 1, 375, 2, 378, 3, 381, 4, 384, 5, 387, 6, 45, 0, 6, 46, 0, 6, 47, 0, 6, 48, 0, 6, 49, 0, 0, 0, 2, 32770, 397, 32779, 420, 0, 0, 4, 1, 408, 2, 411, 3, 414, 4, 417, 5, 50, 0, 5, 51, 0, 5, 52, 0, 5, 53, 0, 0, 0, 5, 1, 433, 2, 436, 3, 439, 4, 442, 5, 445, 6, 54, 0, 6, 55, 0, 6, 56, 0, 6, 57, 0, 6, 58, 0, 0, 0, 1, 32779, 453, 0, 0, 5, 1, 466, 2, 469, 3, 472, 4, 475, 5, 478, 6, 59, 0, 6, 60, 0, 6, 61, 0, 6, 62, 0, 6, 63, 0, 0, 0, 2, 3, 488, 4, 491, 2, 64, 0, 2, 65, 0, 0, 0, 1, 32775, 499, 4, 66, 1, 32774, 504, 0, 0, 1, 32783, 509, 4, 67, 0, 0, 0, 2, 3, 519, 4, 522, 2, 68, 0, 2, 69, 0, 0, 0, 2, 3, 532, 4, 535, 2, 70, 0, 2, 71, 0, 4, 72, 0, 0, 0, 6, 1, 556, 2, 564, 3, 572, 4, 580, 5, 588, 6, 596, 0, 0, 1, 32782, 561, 1, 73, 0, 0, 0, 1, 32782, 569, 1, 74, 0, 0, 0, 1, 32782, 577, 1, 75, 0, 0, 0, 1, 32782, 585, 1, 76, 0, 0, 0, 1, 32782, 593, 1, 77, 0, 0, 0, 1, 32782, 601, 1, 78, 0, 0, 0, 4, 2, 615, 3, 618, 4, 621, 32777, 624, 1, 79, 0, 1, 80, 0, 1, 81, 0, 0, 0, 6, 1, 639, 2, 647, 3, 655, 4, 663, 5, 671, 6, 679, 0, 0, 1, 32782, 644, 1, 82, 0, 0, 0, 1, 32782, 652, 1, 83, 0, 0, 0, 1, 32782, 660, 1, 84, 0, 0, 0, 1, 32782, 668, 1, 85, 0, 0, 0, 1, 32782, 676, 1, 86, 0, 0, 0, 1, 32782, 684, 1, 87, 0, 0, 0, 2, 3, 694, 4, 697, 2, 88, 0, 2, 89, 0, 4, 90, 1, 32774, 705, 0, 0, 1, 32783, 710, 4, 91, 0	}
 
 	precMatrix := [][]gopapageno.Precedence{
 		{gopapageno.PrecEquals, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
-		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
+		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEquals, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEquals, gopapageno.PrecEmpty},
 		{gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
@@ -485,7 +494,7 @@ func NewGrammar() *gopapageno.Grammar {
 		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEquals, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecEquals, gopapageno.PrecEmpty, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecEquals, gopapageno.PrecEmpty, gopapageno.PrecYields},
-		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
+		{gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecYields, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields, gopapageno.PrecYields, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecYields},
 		{gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty},
 		{gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty},
@@ -493,7 +502,7 @@ func NewGrammar() *gopapageno.Grammar {
 		{gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecEmpty, gopapageno.PrecEmpty, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecTakes, gopapageno.PrecEquals, gopapageno.PrecEmpty},
 	}
 	bitPackedMatrix := []uint64{
-		12251244168589170004, 629637665892, 372014444257634816, 9406471509205066922, 1538262213470849696, 6165595102986372437, 12189697498042484049, 9405767830901227560, 3063021872248554122, 4, 
+		12251244168589170004, 629637666404, 372014444257634816, 9406471509205066922, 1538262213470849696, 6165595102986372437, 12189697498042492241, 9405767830901227560, 3063021872248554122, 4, 
 	}
 
 	fn := func(ruleDescription uint16, ruleFlags gopapageno.RuleFlags, lhs *gopapageno.Token, rhs []*gopapageno.Token, thread int){
@@ -1474,6 +1483,74 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = OR2
 			_ = AndExpr_OrExpr3
 		case 50:
+			AndExpr_OrExpr0 := lhs
+			AndExpr_OrExpr1 := rhs[0]
+			AND2 := rhs[1]
+			AndExpr_Factor_OrExpr3 := rhs[2]
+
+			AndExpr_OrExpr0.Child = AndExpr_OrExpr1
+			AndExpr_OrExpr1.Next = AND2
+			AND2.Next = AndExpr_Factor_OrExpr3
+			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr3
+
+			{
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
+			}
+			_ = AndExpr_OrExpr1
+			_ = AND2
+			_ = AndExpr_Factor_OrExpr3
+		case 51:
+			AndExpr_OrExpr0 := lhs
+			AndExpr_OrExpr1 := rhs[0]
+			AND2 := rhs[1]
+			AndExpr_Factor_OrExpr_Path3 := rhs[2]
+
+			AndExpr_OrExpr0.Child = AndExpr_OrExpr1
+			AndExpr_OrExpr1.Next = AND2
+			AND2.Next = AndExpr_Factor_OrExpr_Path3
+			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
+
+			{
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
+			}
+			_ = AndExpr_OrExpr1
+			_ = AND2
+			_ = AndExpr_Factor_OrExpr_Path3
+		case 52:
+			AndExpr_OrExpr0 := lhs
+			AndExpr_OrExpr1 := rhs[0]
+			AND2 := rhs[1]
+			AndExpr_Factor_OrExpr_Step3 := rhs[2]
+
+			AndExpr_OrExpr0.Child = AndExpr_OrExpr1
+			AndExpr_OrExpr1.Next = AND2
+			AND2.Next = AndExpr_Factor_OrExpr_Step3
+			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
+
+			{
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
+			}
+			_ = AndExpr_OrExpr1
+			_ = AND2
+			_ = AndExpr_Factor_OrExpr_Step3
+		case 53:
+			AndExpr_OrExpr0 := lhs
+			AndExpr_OrExpr1 := rhs[0]
+			AND2 := rhs[1]
+			AndExpr_Factor_OrExpr_Step_Test3 := rhs[2]
+
+			AndExpr_OrExpr0.Child = AndExpr_OrExpr1
+			AndExpr_OrExpr1.Next = AND2
+			AND2.Next = AndExpr_Factor_OrExpr_Step_Test3
+			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
+
+			{
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
+			}
+			_ = AndExpr_OrExpr1
+			_ = AND2
+			_ = AndExpr_Factor_OrExpr_Step_Test3
+		case 54:
 			OrExpr0 := lhs
 			AndExpr_OrExpr1 := rhs[0]
 			OR2 := rhs[1]
@@ -1490,7 +1567,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = AndExpr_OrExpr1
 			_ = OR2
 			_ = AndExpr_Factor_OrExpr3
-		case 51:
+		case 55:
 			OrExpr0 := lhs
 			AndExpr_OrExpr1 := rhs[0]
 			OR2 := rhs[1]
@@ -1507,7 +1584,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = AndExpr_OrExpr1
 			_ = OR2
 			_ = AndExpr_Factor_OrExpr_Path3
-		case 52:
+		case 56:
 			OrExpr0 := lhs
 			AndExpr_OrExpr1 := rhs[0]
 			OR2 := rhs[1]
@@ -1524,7 +1601,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = AndExpr_OrExpr1
 			_ = OR2
 			_ = AndExpr_Factor_OrExpr_Step3
-		case 53:
+		case 57:
 			OrExpr0 := lhs
 			AndExpr_OrExpr1 := rhs[0]
 			OR2 := rhs[1]
@@ -1541,7 +1618,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = AndExpr_OrExpr1
 			_ = OR2
 			_ = AndExpr_Factor_OrExpr_Step_Test3
-		case 54:
+		case 58:
 			OrExpr0 := lhs
 			AndExpr_OrExpr1 := rhs[0]
 			OR2 := rhs[1]
@@ -1558,7 +1635,92 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = AndExpr_OrExpr1
 			_ = OR2
 			_ = AndExpr_OrExpr3
-		case 55:
+		case 59:
+			OrExpr0 := lhs
+			OrExpr1 := rhs[0]
+			OR2 := rhs[1]
+			AndExpr_Factor_OrExpr3 := rhs[2]
+
+			OrExpr0.Child = OrExpr1
+			OrExpr1.Next = OR2
+			OR2.Next = AndExpr_Factor_OrExpr3
+			OrExpr0.LastChild = AndExpr_Factor_OrExpr3
+
+			{
+				OrExpr0.Value = combine(or(), toPredicate(OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
+			}
+			_ = OrExpr1
+			_ = OR2
+			_ = AndExpr_Factor_OrExpr3
+		case 60:
+			OrExpr0 := lhs
+			OrExpr1 := rhs[0]
+			OR2 := rhs[1]
+			AndExpr_Factor_OrExpr_Path3 := rhs[2]
+
+			OrExpr0.Child = OrExpr1
+			OrExpr1.Next = OR2
+			OR2.Next = AndExpr_Factor_OrExpr_Path3
+			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
+
+			{
+				OrExpr0.Value = combine(or(), toPredicate(OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
+			}
+			_ = OrExpr1
+			_ = OR2
+			_ = AndExpr_Factor_OrExpr_Path3
+		case 61:
+			OrExpr0 := lhs
+			OrExpr1 := rhs[0]
+			OR2 := rhs[1]
+			AndExpr_Factor_OrExpr_Step3 := rhs[2]
+
+			OrExpr0.Child = OrExpr1
+			OrExpr1.Next = OR2
+			OR2.Next = AndExpr_Factor_OrExpr_Step3
+			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
+
+			{
+				OrExpr0.Value = combine(or(), toPredicate(OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
+			}
+			_ = OrExpr1
+			_ = OR2
+			_ = AndExpr_Factor_OrExpr_Step3
+		case 62:
+			OrExpr0 := lhs
+			OrExpr1 := rhs[0]
+			OR2 := rhs[1]
+			AndExpr_Factor_OrExpr_Step_Test3 := rhs[2]
+
+			OrExpr0.Child = OrExpr1
+			OrExpr1.Next = OR2
+			OR2.Next = AndExpr_Factor_OrExpr_Step_Test3
+			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
+
+			{
+				OrExpr0.Value = combine(or(), toPredicate(OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
+			}
+			_ = OrExpr1
+			_ = OR2
+			_ = AndExpr_Factor_OrExpr_Step_Test3
+		case 63:
+			OrExpr0 := lhs
+			OrExpr1 := rhs[0]
+			OR2 := rhs[1]
+			AndExpr_OrExpr3 := rhs[2]
+
+			OrExpr0.Child = OrExpr1
+			OrExpr1.Next = OR2
+			OR2.Next = AndExpr_OrExpr3
+			OrExpr0.LastChild = AndExpr_OrExpr3
+
+			{
+				OrExpr0.Value = combine(or(), toPredicate(OrExpr1.Value), toPredicate(AndExpr_OrExpr3.Value))
+			}
+			_ = OrExpr1
+			_ = OR2
+			_ = AndExpr_OrExpr3
+		case 64:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			ANCESTOR1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step2 := rhs[1]
@@ -1572,7 +1734,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = ANCESTOR1
 			_ = AndExpr_Factor_OrExpr_Step2
-		case 56:
+		case 65:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			ANCESTOR1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step_Test2 := rhs[1]
@@ -1586,7 +1748,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = ANCESTOR1
 			_ = AndExpr_Factor_OrExpr_Step_Test2
-		case 57:
+		case 66:
 			AndExpr_Factor_OrExpr_Step_Test0 := lhs
 			AT1 := rhs[0]
 			IDENT2 := rhs[1]
@@ -1600,7 +1762,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = AT1
 			_ = IDENT2
-		case 58:
+		case 67:
 			AndExpr_Factor_OrExpr_Step_Test0 := lhs
 			AT1 := rhs[0]
 			IDENT2 := rhs[1]
@@ -1620,7 +1782,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = IDENT2
 			_ = EQ3
 			_ = STRING4
-		case 59:
+		case 68:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			CHILD1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step2 := rhs[1]
@@ -1634,7 +1796,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = CHILD1
 			_ = AndExpr_Factor_OrExpr_Step2
-		case 60:
+		case 69:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			CHILD1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step_Test2 := rhs[1]
@@ -1648,7 +1810,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = CHILD1
 			_ = AndExpr_Factor_OrExpr_Step_Test2
-		case 61:
+		case 70:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			DESCENDANT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step2 := rhs[1]
@@ -1662,7 +1824,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = DESCENDANT1
 			_ = AndExpr_Factor_OrExpr_Step2
-		case 62:
+		case 71:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			DESCENDANT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step_Test2 := rhs[1]
@@ -1676,7 +1838,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = DESCENDANT1
 			_ = AndExpr_Factor_OrExpr_Step_Test2
-		case 63:
+		case 72:
 			AndExpr_Factor_OrExpr_Step_Test0 := lhs
 			IDENT1 := rhs[0]
 
@@ -1687,7 +1849,7 @@ func NewGrammar() *gopapageno.Grammar {
 				AndExpr_Factor_OrExpr_Step_Test0.Value = newElementTest(IDENT1.Value.(string), nil, nil)
 			}
 			_ = IDENT1
-		case 64:
+		case 73:
 			AndExpr_Factor_OrExpr0 := lhs
 			LPAR1 := rhs[0]
 			AndExpr_Factor_OrExpr2 := rhs[1]
@@ -1704,7 +1866,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR1
 			_ = AndExpr_Factor_OrExpr2
 			_ = RPAR3
-		case 65:
+		case 74:
 			AndExpr_Factor_OrExpr0 := lhs
 			LPAR1 := rhs[0]
 			AndExpr_Factor_OrExpr_Path2 := rhs[1]
@@ -1721,7 +1883,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR1
 			_ = AndExpr_Factor_OrExpr_Path2
 			_ = RPAR3
-		case 66:
+		case 75:
 			AndExpr_Factor_OrExpr0 := lhs
 			LPAR1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step2 := rhs[1]
@@ -1738,7 +1900,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR1
 			_ = AndExpr_Factor_OrExpr_Step2
 			_ = RPAR3
-		case 67:
+		case 76:
 			AndExpr_Factor_OrExpr0 := lhs
 			LPAR1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step_Test2 := rhs[1]
@@ -1755,7 +1917,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR1
 			_ = AndExpr_Factor_OrExpr_Step_Test2
 			_ = RPAR3
-		case 68:
+		case 77:
 			AndExpr_Factor_OrExpr0 := lhs
 			LPAR1 := rhs[0]
 			AndExpr_OrExpr2 := rhs[1]
@@ -1772,7 +1934,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR1
 			_ = AndExpr_OrExpr2
 			_ = RPAR3
-		case 69:
+		case 78:
 			AndExpr_Factor_OrExpr0 := lhs
 			LPAR1 := rhs[0]
 			OrExpr2 := rhs[1]
@@ -1789,7 +1951,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR1
 			_ = OrExpr2
 			_ = RPAR3
-		case 70:
+		case 79:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Path2 := rhs[1]
@@ -1803,7 +1965,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = NOT1
 			_ = AndExpr_Factor_OrExpr_Path2
-		case 71:
+		case 80:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step2 := rhs[1]
@@ -1818,7 +1980,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = NOT1
 			_ = AndExpr_Factor_OrExpr_Step2
-		case 72:
+		case 81:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step_Test2 := rhs[1]
@@ -1833,7 +1995,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = NOT1
 			_ = AndExpr_Factor_OrExpr_Step_Test2
-		case 73:
+		case 82:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			LPAR2 := rhs[1]
@@ -1853,7 +2015,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR2
 			_ = AndExpr_Factor_OrExpr3
 			_ = RPAR4
-		case 74:
+		case 83:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			LPAR2 := rhs[1]
@@ -1873,7 +2035,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR2
 			_ = AndExpr_Factor_OrExpr_Path3
 			_ = RPAR4
-		case 75:
+		case 84:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			LPAR2 := rhs[1]
@@ -1893,7 +2055,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR2
 			_ = AndExpr_Factor_OrExpr_Step3
 			_ = RPAR4
-		case 76:
+		case 85:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			LPAR2 := rhs[1]
@@ -1913,7 +2075,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR2
 			_ = AndExpr_Factor_OrExpr_Step_Test3
 			_ = RPAR4
-		case 77:
+		case 86:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			LPAR2 := rhs[1]
@@ -1933,7 +2095,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR2
 			_ = AndExpr_OrExpr3
 			_ = RPAR4
-		case 78:
+		case 87:
 			AndExpr_Factor_OrExpr0 := lhs
 			NOT1 := rhs[0]
 			LPAR2 := rhs[1]
@@ -1953,7 +2115,7 @@ func NewGrammar() *gopapageno.Grammar {
 			_ = LPAR2
 			_ = OrExpr3
 			_ = RPAR4
-		case 79:
+		case 88:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			PARENT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step2 := rhs[1]
@@ -1967,7 +2129,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = PARENT1
 			_ = AndExpr_Factor_OrExpr_Step2
-		case 80:
+		case 89:
 			AndExpr_Factor_OrExpr_Path0 := lhs
 			PARENT1 := rhs[0]
 			AndExpr_Factor_OrExpr_Step_Test2 := rhs[1]
@@ -1981,7 +2143,7 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 			_ = PARENT1
 			_ = AndExpr_Factor_OrExpr_Step_Test2
-		case 81:
+		case 90:
 			AndExpr_Factor_OrExpr_Step_Test0 := lhs
 			TEXT1 := rhs[0]
 
@@ -1992,7 +2154,7 @@ func NewGrammar() *gopapageno.Grammar {
 				AndExpr_Factor_OrExpr_Step_Test0.Value = newTextTest("")
 			}
 			_ = TEXT1
-		case 82:
+		case 91:
 			AndExpr_Factor_OrExpr_Step_Test0 := lhs
 			TEXT1 := rhs[0]
 			EQ2 := rhs[1]
