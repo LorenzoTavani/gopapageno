@@ -82,43 +82,19 @@ Test : IDENT {
 
 OrExpr : AndExpr {}
   | AndExpr OR AndExpr {
-	switch $1.Value.(type) {
-	case *elementTest:
-		pe := appendStep(nil, $1.Value.(udpeTest), child)
-		$1.Value = newAtom(pe.end())
-	}
-
-	switch $3.Value.(type) {
-	case *elementTest:
-		pe := appendStep(nil, $3.Value.(udpeTest), child)
-		$3.Value = newAtom(pe.end())
-	}
-
-	$$.Value = combine(or(), $1.Value.(*predicate), $3.Value.(*predicate))
+	$$.Value = combine(or(), toPredicate($1.Value), toPredicate($3.Value))
 };
 
 AndExpr : Factor {}
   | Factor AND Factor {
-	switch $1.Value.(type) {
-	case *elementTest:
-		pe := appendStep(nil, $1.Value.(udpeTest), child)
-		$1.Value = newAtom(pe.end())
-	}
-
-	switch $3.Value.(type) {
-	case *elementTest:
-		pe := appendStep(nil, $3.Value.(udpeTest), child)
-		$3.Value = newAtom(pe.end())
-	}
-
-	$$.Value = combine(and(), $1.Value.(*predicate), $3.Value.(*predicate))
+	$$.Value = combine(and(), toPredicate($1.Value), toPredicate($3.Value))
 };
 
 // TODO(vvihorev): beware, Factor -> Path, and Factor -> Step semantic actions are getting dropped
 Factor : Path {
-	$$.Value = newAtom($1.Value.(peSemValue).end())
+	$$.Value = newAtom($1.Value.(*peSemValue).end())
 } | NOT Path {
-	$$.Value = notNode(newAtom($2.Value.(peSemValue).end()))
+	$$.Value = notNode(newAtom($2.Value.(*peSemValue).end()))
 } | Step {}
   | NOT Step {
 	step := appendStep(nil, $2.Value.(udpeTest), child)
@@ -126,7 +102,7 @@ Factor : Path {
 } | LPAR OrExpr RPAR {
 	$$.Value = $2.Value
 } | NOT LPAR OrExpr RPAR {
-	$$.Value = notNode($3.Value.(*predicate))
+	$$.Value = notNode(toPredicate($3.Value))
 };
 
 %%
@@ -159,6 +135,21 @@ func combine(op operator, dst, src *predicate) *predicate {
 	}
 	dst.root = &node
 	return dst
+}
+
+// toPredicate turns an operand of and/or/not into a predicate. The generator
+// removes the renaming rules Factor -> Path and Factor -> Step together with
+// their actions, so an operand can still be a plain test or a path here.
+func toPredicate(v any) *predicate {
+	switch x := v.(type) {
+	case *predicate:
+		return x
+	case *elementTest:
+		return newAtom(appendStep(nil, x, child).end())
+	case *peSemValue:
+		return newAtom(x.end())
+	}
+	panic(fmt.Sprintf("unexpected operand in a predicate: %T", v))
 }
 
 func (pe peSemValue) end() int {

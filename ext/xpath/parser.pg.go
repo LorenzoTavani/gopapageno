@@ -39,6 +39,21 @@ func combine(op operator, dst, src *predicate) *predicate {
 	return dst
 }
 
+// toPredicate turns an operand of and/or/not into a predicate. The generator
+// removes the renaming rules Factor -> Path and Factor -> Step together with
+// their actions, so an operand can still be a plain test or a path here.
+func toPredicate(v any) *predicate {
+	switch x := v.(type) {
+	case *predicate:
+		return x
+	case *elementTest:
+		return newAtom(appendStep(nil, x, child).end())
+	case *peSemValue:
+		return newAtom(x.end())
+	}
+	panic(fmt.Sprintf("unexpected operand in a predicate: %T", v))
+}
+
 func (pe peSemValue) end() int {
 	switch pe.builder.(type) {
 	case *fpeBuilder:
@@ -495,19 +510,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = AND2
@@ -524,19 +527,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = AND2
@@ -553,19 +544,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = AND2
@@ -582,19 +561,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = AND2
@@ -611,19 +578,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = OR2
@@ -640,19 +595,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = OR2
@@ -669,19 +612,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = OR2
@@ -698,19 +629,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = OR2
@@ -727,19 +646,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr3.Value.(udpeTest), child)
-					AndExpr_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr1.Value.(*predicate), AndExpr_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr1.Value), toPredicate(AndExpr_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr1
 			_ = OR2
@@ -790,19 +697,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = AND2
@@ -819,19 +714,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = AND2
@@ -848,19 +731,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = AND2
@@ -877,19 +748,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = AND2
@@ -974,19 +833,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = OR2
@@ -1003,19 +850,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = OR2
@@ -1032,19 +867,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = OR2
@@ -1061,19 +884,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = OR2
@@ -1090,19 +901,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Path1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr3.Value.(udpeTest), child)
-					AndExpr_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Path1.Value.(*predicate), AndExpr_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Path1.Value), toPredicate(AndExpr_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Path1
 			_ = OR2
@@ -1153,19 +952,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = AND2
@@ -1182,19 +969,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = AND2
@@ -1211,19 +986,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = AND2
@@ -1240,19 +1003,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = AND2
@@ -1269,19 +1020,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = OR2
@@ -1298,19 +1037,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = OR2
@@ -1327,19 +1054,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = OR2
@@ -1356,19 +1071,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = OR2
@@ -1385,19 +1088,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr3.Value.(udpeTest), child)
-					AndExpr_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step1.Value.(*predicate), AndExpr_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step1.Value), toPredicate(AndExpr_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step1
 			_ = OR2
@@ -1414,19 +1105,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = AND2
@@ -1443,19 +1122,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = AND2
@@ -1472,19 +1139,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = AND2
@@ -1501,19 +1156,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				AndExpr_OrExpr0.Value = combine(and(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				AndExpr_OrExpr0.Value = combine(and(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = AND2
@@ -1757,19 +1400,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = OR2
@@ -1786,19 +1417,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = OR2
@@ -1815,19 +1434,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = OR2
@@ -1844,19 +1451,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = OR2
@@ -1873,19 +1468,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_OrExpr3
 
 			{
-				switch AndExpr_Factor_OrExpr_Step_Test1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test1.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr3.Value.(udpeTest), child)
-					AndExpr_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_Factor_OrExpr_Step_Test1.Value.(*predicate), AndExpr_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_Factor_OrExpr_Step_Test1.Value), toPredicate(AndExpr_OrExpr3.Value))
 			}
 			_ = AndExpr_Factor_OrExpr_Step_Test1
 			_ = OR2
@@ -1902,19 +1485,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr3
 
 			{
-				switch AndExpr_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr1.Value.(udpeTest), child)
-					AndExpr_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = AndExpr_OrExpr1
 			_ = OR2
@@ -1931,19 +1502,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path3
 
 			{
-				switch AndExpr_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr1.Value.(udpeTest), child)
-					AndExpr_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Path3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Path3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Path3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = AndExpr_OrExpr1
 			_ = OR2
@@ -1960,19 +1519,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step3
 
 			{
-				switch AndExpr_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr1.Value.(udpeTest), child)
-					AndExpr_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = AndExpr_OrExpr1
 			_ = OR2
@@ -1989,19 +1536,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_Factor_OrExpr_Step_Test3
 
 			{
-				switch AndExpr_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr1.Value.(udpeTest), child)
-					AndExpr_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_Factor_OrExpr_Step_Test3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_Factor_OrExpr_Step_Test3.Value.(udpeTest), child)
-					AndExpr_Factor_OrExpr_Step_Test3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_OrExpr1.Value.(*predicate), AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = AndExpr_OrExpr1
 			_ = OR2
@@ -2018,19 +1553,7 @@ func NewGrammar() *gopapageno.Grammar {
 			OrExpr0.LastChild = AndExpr_OrExpr3
 
 			{
-				switch AndExpr_OrExpr1.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr1.Value.(udpeTest), child)
-					AndExpr_OrExpr1.Value = newAtom(pe.end())
-				}
-			
-				switch AndExpr_OrExpr3.Value.(type) {
-				case *elementTest:
-					pe := appendStep(nil, AndExpr_OrExpr3.Value.(udpeTest), child)
-					AndExpr_OrExpr3.Value = newAtom(pe.end())
-				}
-			
-				OrExpr0.Value = combine(or(), AndExpr_OrExpr1.Value.(*predicate), AndExpr_OrExpr3.Value.(*predicate))
+				OrExpr0.Value = combine(or(), toPredicate(AndExpr_OrExpr1.Value), toPredicate(AndExpr_OrExpr3.Value))
 			}
 			_ = AndExpr_OrExpr1
 			_ = OR2
@@ -2276,7 +1799,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = AndExpr_Factor_OrExpr_Path2
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(newAtom(AndExpr_Factor_OrExpr_Path2.Value.(peSemValue).end()))
+				AndExpr_Factor_OrExpr0.Value = notNode(newAtom(AndExpr_Factor_OrExpr_Path2.Value.(*peSemValue).end()))
 			}
 			_ = NOT1
 			_ = AndExpr_Factor_OrExpr_Path2
@@ -2324,7 +1847,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = RPAR4
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(AndExpr_Factor_OrExpr3.Value.(*predicate))
+				AndExpr_Factor_OrExpr0.Value = notNode(toPredicate(AndExpr_Factor_OrExpr3.Value))
 			}
 			_ = NOT1
 			_ = LPAR2
@@ -2344,7 +1867,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = RPAR4
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(AndExpr_Factor_OrExpr_Path3.Value.(*predicate))
+				AndExpr_Factor_OrExpr0.Value = notNode(toPredicate(AndExpr_Factor_OrExpr_Path3.Value))
 			}
 			_ = NOT1
 			_ = LPAR2
@@ -2364,7 +1887,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = RPAR4
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(AndExpr_Factor_OrExpr_Step3.Value.(*predicate))
+				AndExpr_Factor_OrExpr0.Value = notNode(toPredicate(AndExpr_Factor_OrExpr_Step3.Value))
 			}
 			_ = NOT1
 			_ = LPAR2
@@ -2384,7 +1907,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = RPAR4
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(AndExpr_Factor_OrExpr_Step_Test3.Value.(*predicate))
+				AndExpr_Factor_OrExpr0.Value = notNode(toPredicate(AndExpr_Factor_OrExpr_Step_Test3.Value))
 			}
 			_ = NOT1
 			_ = LPAR2
@@ -2404,7 +1927,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = RPAR4
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(AndExpr_OrExpr3.Value.(*predicate))
+				AndExpr_Factor_OrExpr0.Value = notNode(toPredicate(AndExpr_OrExpr3.Value))
 			}
 			_ = NOT1
 			_ = LPAR2
@@ -2424,7 +1947,7 @@ func NewGrammar() *gopapageno.Grammar {
 			AndExpr_Factor_OrExpr0.LastChild = RPAR4
 
 			{
-				AndExpr_Factor_OrExpr0.Value = notNode(OrExpr3.Value.(*predicate))
+				AndExpr_Factor_OrExpr0.Value = notNode(toPredicate(OrExpr3.Value))
 			}
 			_ = NOT1
 			_ = LPAR2
