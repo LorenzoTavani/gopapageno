@@ -121,19 +121,66 @@ func TestAndChainWithNot(t *testing.T) {
 	}
 }
 
-// Measurement, not an assertion: path predicates with and without '//'
-// before the predicate. Logs what the executor returns.
-func TestPathPredicateMatrix(t *testing.T) {
+// runHardcoded runs one of the XPathMark queries that are built by hand in the
+// executor, instead of parsing a query string.
+func runHardcoded(t *testing.T, source, code string) []string {
+	t.Helper()
+	r := gopapageno.NewRunner(
+		xpath.NewLexer(),
+		xpath.NewGrammar(),
+		gopapageno.WithConcurrency(1),
+	)
+	exec := x.PrepareBenchmark(r, []byte(source), 1)
+	if err := exec.LoadQuery(code); err != nil {
+		t.Fatal(err)
+	}
+	var out []string
+	for _, p := range exec.ExecuteBenchmark() {
+		out = append(out, source[p.Start():p.End()+1])
+	}
+	return out
+}
 
-	t.Skip("known limitation: path predicates return no results, see KNOWN_ISSUES.md")
+// The XPathMark query A4, built by hand in the executor, evaluates a path
+// predicate correctly: the engine is fine.
+func TestHandBuiltPathPredicate(t *testing.T) {
+	source := `<site><closed_auctions>` +
+		`<closed_auction><annotation><description><Text><keyword></keyword></Text></description></annotation><date>one</date></closed_auction>` +
+		`<closed_auction><annotation><description><Text></Text></description></annotation><date>two</date></closed_auction>` +
+		`</closed_auctions></site>`
+	got := runHardcoded(t, source, "A4")
+	want := []string{`<date>one</date>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
 
+// A path predicate works when its path starts with the name of the element
+// that carries the predicate: the context of a predicate is the node matched
+// by the first step of its path.
+func TestPathPredicateStartingWithTheCarrier(t *testing.T) {
 	source := `<body><div><p><b></b></p></div><div><p></p></div></body>`
-	for _, q := range []string{
-		`/body/div[/p/b]`,
-		`//div[/p/b]`,
-		`/body/div[/p]`,
-		`//div[/p]`,
-	} {
-		t.Logf("%-18s -> %v", q, runQuery(t, source, q))
+	got := runQuery(t, source, `/body/div[/div/p/b]`)
+	want := []string{`<div><p><b></b></p></div>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	got = runQuery(t, source, `//div[/div/p]`)
+	want = []string{`<div><p><b></b></p></div>`, `<div><p></p></div>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+// Known limitation: in XPath, //div[p] selects the divs that have a p child.
+// The query parser builds the predicate path without the step of the carrier
+// element, so nothing is ever found. Remove the Skip once it is fixed.
+func TestPathPredicateWithoutTheCarrier(t *testing.T) {
+	t.Skip("known limitation: predicate paths are not anchored to the element carrying the predicate, see KNOWN_ISSUES.md")
+	source := `<body><div><p><b></b></p></div><div><p></p></div></body>`
+	got := runQuery(t, source, `//div[p]`)
+	want := []string{`<div><p><b></b></p></div>`, `<div><p></p></div>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
 	}
 }
