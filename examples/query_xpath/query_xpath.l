@@ -3,7 +3,7 @@
 
 %%
 
-IDENT [a-zA-Z0-9_\-:]+
+IDENT ([a-zA-Z0-9_\-]+|\*)(:[a-zA-Z0-9_\-]+)*
 
 CHILD /
 PARENT \\\\

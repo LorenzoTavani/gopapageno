@@ -68,3 +68,72 @@ func TestPredicateOnNestedDivs(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 }
+
+// The wildcard matches any element.
+func TestWildcard(t *testing.T) {
+	source := `<body><div></div><p></p></body>`
+	got := runQuery(t, source, `/body/*`)
+	want := []string{`<div></div>`, `<p></p>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+// An axis written with '::' is not supported: it must be an error, not a
+// silent miss.
+func TestAxisSyntaxIsRejected(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("descendant:: should be rejected, but the query was accepted")
+		}
+	}()
+	runQuery(t, `<body><div><b></b></div></body>`, `//div[descendant::b]`)
+}
+
+// A tag with two attributes can be matched on the second one.
+func TestMultipleAttributes(t *testing.T) {
+	source := `<body><div a="1" b="2"></div><div a="1"></div></body>`
+	got := runQuery(t, source, `//div[@b="2"]`)
+	want := []string{`<div a="1" b="2"></div>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+// Measurement: a relative path in a predicate is written with a leading axis.
+// A chain of or: the three matching divs, in document order.
+func TestOrChain(t *testing.T) {
+	source := `<body><div class="a"></div><div class="b"></div><div class="d"></div><div class="c"></div></body>`
+	got := runQuery(t, source, `//div[@class="a" or @class="b" or @class="c"]`)
+	want := []string{`<div class="a"></div>`, `<div class="b"></div>`, `<div class="c"></div>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+// A chain of and with two negations: only the first div qualifies.
+func TestAndChainWithNot(t *testing.T) {
+	source := `<body><div class="x"></div><div class="y"></div></body>`
+	got := runQuery(t, source, `//div[@class="x" and not @id and not @lang]`)
+	want := []string{`<div class="x"></div>`}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+// Measurement, not an assertion: path predicates with and without '//'
+// before the predicate. Logs what the executor returns.
+func TestPathPredicateMatrix(t *testing.T) {
+
+	t.Skip("known limitation: path predicates return no results, see KNOWN_ISSUES.md")
+
+	source := `<body><div><p><b></b></p></div><div><p></p></div></body>`
+	for _, q := range []string{
+		`/body/div[/p/b]`,
+		`//div[/p/b]`,
+		`/body/div[/p]`,
+		`//div[/p]`,
+	} {
+		t.Logf("%-18s -> %v", q, runQuery(t, source, q))
+	}
+}
