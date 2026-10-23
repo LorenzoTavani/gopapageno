@@ -155,32 +155,58 @@ func TestHandBuiltPathPredicate(t *testing.T) {
 	}
 }
 
-// A path predicate works when its path starts with the name of the element
-// that carries the predicate: the context of a predicate is the node matched
-// by the first step of its path.
-func TestPathPredicateStartingWithTheCarrier(t *testing.T) {
+// Paths in predicates start at the element that carries the predicate.
+func TestPathPredicates(t *testing.T) {
 	source := `<body><div><p><b></b></p></div><div><p></p></div></body>`
-	got := runQuery(t, source, `/body/div[/div/p/b]`)
-	want := []string{`<div><p><b></b></p></div>`}
-	if fmt.Sprint(got) != fmt.Sprint(want) {
-		t.Fatalf("got %v, want %v", got, want)
-	}
-	got = runQuery(t, source, `//div[/div/p]`)
-	want = []string{`<div><p><b></b></p></div>`, `<div><p></p></div>`}
-	if fmt.Sprint(got) != fmt.Sprint(want) {
-		t.Fatalf("got %v, want %v", got, want)
+	div1 := `<div><p><b></b></p></div>`
+	div2 := `<div><p></p></div>`
+	for _, c := range []struct {
+		query string
+		want  []string
+	}{
+		{`/body/div[/p/b]`, []string{div1}},
+		{`//div[/p/b]`, []string{div1}},
+		{`//div[/p]`, []string{div1, div2}},
+		{`//div[p]`, []string{div1, div2}},
+		{`//div[b]`, nil},
+		{`//div[/p/b or /p/c]`, []string{div1}},
+		{`//div[not /p/b]`, []string{div2}},
+	} {
+		got := runQuery(t, source, c.query)
+		if fmt.Sprint(got) != fmt.Sprint(c.want) {
+			t.Errorf("%s: got %v, want %v", c.query, got, c.want)
+		}
 	}
 }
 
-// Known limitation: in XPath, //div[p] selects the divs that have a p child.
-// The query parser builds the predicate path without the step of the carrier
-// element, so nothing is ever found. Remove the Skip once it is fixed.
-func TestPathPredicateWithoutTheCarrier(t *testing.T) {
-	t.Skip("known limitation: predicate paths are not anchored to the element carrying the predicate, see KNOWN_ISSUES.md")
-	source := `<body><div><p><b></b></p></div><div><p></p></div></body>`
-	got := runQuery(t, source, `//div[p]`)
-	want := []string{`<div><p><b></b></p></div>`, `<div><p></p></div>`}
-	if fmt.Sprint(got) != fmt.Sprint(want) {
-		t.Fatalf("got %v, want %v", got, want)
+// The text versions of the XPathMark queries A4 and A6 give the same result as
+// the queries built by hand in the executor.
+func TestTextQueriesEqualHandBuilt(t *testing.T) {
+	a4 := `<site><closed_auctions>` +
+		`<closed_auction><annotation><description><Text><keyword></keyword></Text></description></annotation><date>one</date></closed_auction>` +
+		`<closed_auction><annotation><description><Text></Text></description></annotation><date>two</date></closed_auction>` +
+		`</closed_auctions></site>`
+	a6 := `<site><people>` +
+		`<person><profile><gender>m</gender><age>3</age></profile><name>ann</name></person>` +
+		`<person><profile><gender>f</gender></profile><name>bob</name></person>` +
+		`</people></site>`
+	a7 := `<site><people>` +
+		`<person><phone>1</phone><name>ann</name></person>` +
+		`<person><homepage>h</homepage><name>bob</name></person>` +
+		`<person><name>cid</name></person>` +
+		`</people></site>`
+	for _, c := range []struct {
+		name, source, code, query string
+		want                      []string
+	}{
+		{"A4", a4, "A4", `/site/closed_auctions/closed_auction[/annotation/description/Text/keyword]/date`, []string{`<date>one</date>`}},
+		{"A6", a6, "A6", `/site/people/person[/profile/gender and /profile/age]/name`, []string{`<name>ann</name>`}},
+		{"A7", a7, "A7", `/site/people/person[phone or homepage]/name`, []string{`<name>ann</name>`, `<name>bob</name>`}},
+	} {
+		hand := runHardcoded(t, c.source, c.code)
+		text := runQuery(t, c.source, c.query)
+		if fmt.Sprint(hand) != fmt.Sprint(c.want) || fmt.Sprint(text) != fmt.Sprint(c.want) {
+			t.Errorf("%s: hand-built %v, text %v, want %v", c.name, hand, text, c.want)
+		}
 	}
 }
