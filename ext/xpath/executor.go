@@ -441,7 +441,7 @@ func (executor *executor) A6() {
 	node2 := predNode{op: atom()}
 	nodeAnd := predNode{op: and()}
 	nodeAnd.left = &node1
-	nodeAnd.left = &node2
+	nodeAnd.right = &node2
 	node1.parent = &nodeAnd
 	node2.parent = &nodeAnd
 	p := &predicate{
@@ -487,7 +487,7 @@ func (executor *executor) A7() {
 	node2 := predNode{op: atom()}
 	nodeOr := predNode{op: or()}
 	nodeOr.left = &node1
-	nodeOr.left = &node2
+	nodeOr.right = &node2
 	node1.parent = &nodeOr
 	node2.parent = &nodeOr
 	p := &predicate{
