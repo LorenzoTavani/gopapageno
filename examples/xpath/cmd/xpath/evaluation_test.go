@@ -2,8 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"runtime"
 	"sort"
+	"strconv"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/LorenzoTavani/gopapageno"
 	"github.com/LorenzoTavani/gopapageno/examples/xpath"
@@ -209,4 +214,129 @@ func TestTextQueriesEqualHandBuilt(t *testing.T) {
 			t.Errorf("%s: hand-built %v, text %v, want %v", c.name, hand, text, c.want)
 		}
 	}
+}
+
+// runQueryN is like runQuery, with n parser threads.
+func runQueryN(t *testing.T, source, query string, n int) []string {
+	t.Helper()
+	r := gopapageno.NewRunner(
+		xpath.NewLexer(),
+		xpath.NewGrammar(),
+		gopapageno.WithConcurrency(n),
+	)
+	res, err := x.Execute(query).Against([]byte(source)).WithNumberOfThreads(n).Run(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out []string
+	for _, p := range res {
+		out = append(out, source[p.Start():p.End()+1])
+	}
+	return out
+}
+
+// bigDocument builds a document with n divs of three kinds.
+func bigDocument(n int) string {
+	var sb strings.Builder
+	sb.WriteString("<body>")
+	for i := 0; i < n; i++ {
+		switch i % 3 {
+		case 0:
+			sb.WriteString(`<div class="a"><p><b></b></p></div>`)
+		case 1:
+			sb.WriteString(`<div class="b"><p></p></div>`)
+		default:
+			sb.WriteString(`<div class="c"></div>`)
+		}
+	}
+	sb.WriteString("</body>")
+	return sb.String()
+}
+
+// The results must not depend on the number of threads.
+// The results must not depend on the number of threads.
+func TestParallelEqualsSequential(t *testing.T) {
+	source := bigDocument(600)
+	for _, q := range []string{
+		`/body/div[@class="b"]`,
+		`//div[@class="a"]`,
+		`//div[p]`,
+		`//div[/p/b]`,
+		`//div[@class="a" or @class="c"]`,
+		`//div`,
+	} {
+		t.Logf("%s: 1 thread", q)
+		want := runQueryN(t, source, q, 1)
+		if len(want) == 0 {
+			t.Fatalf("%s: the sequential run gives no results", q)
+		}
+		for _, n := range []int{2, 4, 8} {
+			t.Logf("%s: %d threads", q, n)
+			got := runQueryN(t, source, q, n)
+			if len(got) != len(want) {
+				t.Errorf("%s with %d threads: %d results, sequential %d", q, n, len(got), len(want))
+				continue
+			}
+			for i := range got {
+				if got[i] != want[i] {
+					t.Errorf("%s with %d threads: result %d is %q, sequential %q", q, n, i, got[i], want[i])
+					break
+				}
+			}
+		}
+	}
+}
+
+// bigRareDocument builds n divs; only every 'every'-th one has class "hit".
+func bigRareDocument(n, every int) string {
+	var sb strings.Builder
+	sb.WriteString("<body>")
+	for i := 0; i < n; i++ {
+		if i%every == 0 {
+			sb.WriteString(`<div class="hit"><p></p></div>`)
+		} else {
+			sb.WriteString(`<div class="no"><p></p></div>`)
+		}
+	}
+	sb.WriteString("</body>")
+	return sb.String()
+}
+
+// A large document with few results: parallel results equal sequential ones.
+// Large documents with few results: parallel results equal sequential ones.
+func TestParallelOnLargeDocumentWithFewResults(t *testing.T) {
+	large := bigRareDocument(3000, 300) // 10 hits among 3000 divs
+	small := bigRareDocument(600, 60)   // 10 hits among 600 divs, every div has a p
+	for _, c := range []struct{ query, source string }{
+		{`//div[@class="hit"]`, large},
+		{`/body/div[@class="hit"]`, large},
+		{`//div[@class="hit" and /p]`, small},
+	} {
+		t.Logf("%s: 1 thread", c.query)
+		want := runQueryN(t, c.source, c.query, 1)
+		if len(want) != 10 {
+			t.Fatalf("%s: the sequential run gives %d results, want 10", c.query, len(want))
+		}
+		for _, n := range []int{2, 4, 8} {
+			t.Logf("%s: %d threads", c.query, n)
+			got := runQueryN(t, c.source, c.query, n)
+			if fmt.Sprint(got) != fmt.Sprint(want) {
+				t.Errorf("%s with %d threads: got %d results, sequential %d", c.query, n, len(got), len(want))
+			}
+		}
+	}
+}
+
+// Measurement: one run of //div on a document of SCALE_N divs.
+func TestScalingOne(t *testing.T) {
+	n, _ := strconv.Atoi(os.Getenv("SCALE_N"))
+	if n == 0 {
+		t.Skip("set SCALE_N to run this measurement")
+	}
+	source := bigDocument(n)
+	start := time.Now()
+	got := runQueryN(t, source, `//div`, 1)
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	t.Logf("n=%d results=%d time=%v memory obtained from the system=%d MB", n, len(got), time.Since(start), m.Sys>>20)
 }

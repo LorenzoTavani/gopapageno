@@ -1,30 +1,17 @@
-//go:build wip
-
 package xpath
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestGlobalUdpeTable(t *testing.T) {
-	t.Run(`iterate(callback)`, func(t *testing.T) {
-		udpeGlobalTable := new(globalUdpeTableImpl)
+	t.Run(`size() counts the registered path expressions`, func(t *testing.T) {
+		table := new(globalUdpeTable)
 
-		udpeGlobalTable.addFpe(nil)
-		udpeGlobalTable.addFpe(nil)
-		udpeGlobalTable.addFpe(nil)
+		table.addFpe(nil)
+		table.addFpe(nil)
+		table.addFpe(nil)
 
-		const expectedCallCount = 3
-
-		var actualCallCount int
-		var spyCallback = func(id int, gur globalUdpeRecord) {
-			actualCallCount++
-		}
-
-		udpeGlobalTable.iterate(spyCallback)
-
-		if actualCallCount != expectedCallCount {
-			t.Errorf(`callback called %d times | want %d times`, actualCallCount, expectedCallCount)
+		if got := table.size(); got != 3 {
+			t.Errorf(`size() = %d | want 3`, got)
 		}
 	})
 }
