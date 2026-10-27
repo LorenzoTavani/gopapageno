@@ -340,3 +340,21 @@ func TestScalingOne(t *testing.T) {
 	runtime.ReadMemStats(&m)
 	t.Logf("n=%d results=%d time=%v memory obtained from the system=%d MB", n, len(got), time.Since(start), m.Sys>>20)
 }
+
+// A path predicate on nested elements with the same name: the pattern branches
+// while a speculation is pending.
+func TestPathPredicateOnNestedDivs(t *testing.T) {
+	for _, c := range []struct {
+		source string
+		want   []string
+	}{
+		{`<body><div><div><p></p></div></div></body>`, []string{`<div><p></p></div>`}},
+		{`<body><div><p></p><div><p></p></div></div></body>`,
+			[]string{`<div><p></p><div><p></p></div></div>`, `<div><p></p></div>`}},
+	} {
+		got := runQuery(t, c.source, `//div[p]`)
+		if fmt.Sprint(got) != fmt.Sprint(c.want) {
+			t.Errorf("%s: got %v, want %v", c.source, got, c.want)
+		}
+	}
+}
