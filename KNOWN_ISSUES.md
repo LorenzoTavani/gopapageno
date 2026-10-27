@@ -1,8 +1,7 @@
 # Known issues
 
-Open problems of the code inherited from `giornetta/gopapageno` and `vvihorev/gopapageno`,
-found while reviewing it and merging the two lines. The defects that were already fixed are
-not listed here: they are in the commit history (`git log`). Last updated: 2026-10-27.
+Open problems of the code, found while reviewing it and merging the two lines. 
+The defects that were already fixed are not listed here: they are in the commit history (`git log`). Last updated: 2026-10-27.
 
 Status legend:
 - **confirmed**: reproduced with a test, a build or a measurement;
