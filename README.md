@@ -67,7 +67,6 @@ The obtained runner can be used to execute the whole parallel lexing and parsing
 - In grammar (`.g`) files, a line that starts with `//` is a comment.
 - If the precedence matrix has unresolved conflicts, the generator prints the rule involved and marks the two terminals in conflict.
 - The generator prints `WARNING: semantic action is deleted` for a semantic action attached to a renaming rule (`A : B`). Renaming rules are removed when the grammar is brought to operator-precedence normal form, so their action is never executed; the warning also appears when the action only passed a value on, in which case nothing is lost.
-- The output directory given with `-o` must already exist.
 
 ### Lexicon Specification
 
@@ -188,7 +187,7 @@ To learn more about benchmarking details and how to replicate the process, pleas
 
 The `ext/xpath` package evaluates XPath queries while an XML document is being parsed in parallel. The parser generated for XML (`examples/xpath`) calls the evaluator at every reduction, so the query advances node by node and the partial results of different chunks are merged.
 
-The example program `examples/xpath/cmd/xpath` accepts `-f` (the XML file), `-q` (the query), `-c` (the number of goroutines), `-log`, `-cpuprof` and `-memprof`, and prints the positions of the matching fragments. Always pass `-q` explicitly. For example:
+The example program `examples/xpath/cmd/xpath` accepts `-f` (the XML file), `-q` (the query), `-c` (the number of goroutines), `-log`, `-cpuprof` and `-memprof`, and prints the positions of the matching fragments. The `-q` flag is required. For example:
 ```bash
 go run ./examples/xpath/cmd/xpath -f examples/xpath/data/1MB.xml -q '//table[@ID="partsupp"]' -c 4
 ```
