@@ -14,7 +14,7 @@ import (
 func BenchmarkXPathMark(b *testing.B) {
 	bytes, err := os.ReadFile("../../data/bench_small.xml")
 	if err != nil {
-		return
+		b.Skip("data file not available: ", err)
 	}
 	r := gopapageno.NewRunner(
 		xpath.NewLexer(),
@@ -54,7 +54,7 @@ func BenchmarkXPathMark(b *testing.B) {
 func TestQuery(t *testing.T) {
 	bytes, err := os.ReadFile("../../data/bench_small.xml")
 	if err != nil {
-		return
+		t.Skip("data file not available: ", err)
 	}
 	r := gopapageno.NewRunner(
 		xpath.NewLexer(),
@@ -64,13 +64,12 @@ func TestQuery(t *testing.T) {
 
 	query := (
 	// `/site/closed_auctions/closed_auction[/annotation/description/text/keyword]/date`)
-		`/site/closed_auctions[closed_auction/annotation/description/text/keyword]`)
+	`/site/closed_auctions[closed_auction/annotation/description/text/keyword]`)
 	cmd := x.Execute(query).Against(bytes).WithNumberOfThreads(1)
 	res, err := cmd.Run(r)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("%e", err))
 	}
-	t.Fatalf("Found %d matches", len(res))
 	if len(res) == 0 {
 		t.Fatalf("no matches found")
 	}
