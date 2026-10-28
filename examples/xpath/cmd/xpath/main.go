@@ -4,20 +4,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"log"
+	"math"
+	"os"
+	"runtime/debug"
+	"time"
+
 	"github.com/LorenzoTavani/gopapageno"
 	"github.com/LorenzoTavani/gopapageno/examples/xpath"
 	x "github.com/LorenzoTavani/gopapageno/ext/xpath"
-	"io"
-	"log"
-	"os"
-	"time"
-	"math"
-	"runtime/debug"
 )
 
 func main() {
 	// NOTE(vvihorev): 1.52s on 30MB if ran without GC, 2.6s with GC
-	if (true) {
+	if true {
 		debug.SetGCPercent(-1)
 		debug.SetMemoryLimit(math.MaxInt64)
 	}
@@ -34,7 +35,7 @@ func main() {
 
 func run() error {
 	sourceFlag := flag.String("f", "", "source file")
-	queryFlag := flag.String("q", "A1", "query name")
+	queryFlag := flag.String("q", "", "XPath query, for example //div[@class]")
 	concurrencyFlag := flag.Int("c", 1, "number of concurrent goroutines to spawn")
 	logFlag := flag.Bool("log", false, "enable logging")
 
@@ -42,6 +43,10 @@ func run() error {
 	memProfileFlag := flag.String("memprof", "", "output file for Memory profiling")
 
 	flag.Parse()
+
+	if *queryFlag == "" {
+		return fmt.Errorf("a query is required: use -q, for example -q '//div'")
+	}
 
 	bytes, err := os.ReadFile(*sourceFlag)
 	if err != nil {
