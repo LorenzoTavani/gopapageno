@@ -17,7 +17,7 @@ The benchmarks were executed on three diverse files, each approximately 180MB in
 > For these benchmarks, the following values have been decided:
 > - Emojis: `avg = 8, pf = 1`
 > - Citylots: `avg = 4, pf = 0.5`
-> - Emojis: `avg = 4, pf = 0`
+> - Wikidata: `avg = 4, pf = 0`
 
 The machine used for testing is equipped with dual 2 GHz AMD EPYC 7551 32-Core processors and 503 GiB of RAM, running on Debian 6.1.99-1. Finally, all tests have been executed using Go 1.23.0 and the built-in testing and benchmarking tools provided by the Go toolchain.
 
