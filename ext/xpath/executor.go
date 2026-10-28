@@ -244,8 +244,12 @@ func PrepareBenchmark(runner *gopapageno.Runner, source []byte, numberOfThreads 
 }
 
 func (executor *executor) ExecuteBenchmark() []Position {
-	debug.SetGCPercent(-1)
-	debug.SetMemoryLimit(math.MaxInt64)
+	// The garbage collector is turned off while the query runs, and the previous
+	// settings are restored on return: they are process-wide.
+	gcPercent := debug.SetGCPercent(-1)
+	memoryLimit := debug.SetMemoryLimit(math.MaxInt64)
+	defer debug.SetGCPercent(gcPercent)
+	defer debug.SetMemoryLimit(memoryLimit)
 	err := executor.executeUDPEsWhileParsing()
 	if err != nil {
 		return nil
