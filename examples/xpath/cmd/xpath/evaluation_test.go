@@ -358,3 +358,21 @@ func TestPathPredicateOnNestedDivs(t *testing.T) {
 		}
 	}
 }
+
+// The comment in opp.go mentions an infinite loop on A1 with testbug.xml.
+// The comment in opp.go mentions an infinite loop with the query A1 and
+// testbug.xml. The hand-built A1 looks for "Text", the file has "text", so the
+// text version of the query is used.
+func TestTestbugDoesNotLoop(t *testing.T) {
+	source, err := os.ReadFile("../../data/testbug.xml")
+	if err != nil {
+		t.Skip("data file not available: ", err)
+	}
+	const query = `/site/closed_auctions/closed_auction/annotation/description/text/keyword`
+	for _, n := range []int{1, 2, 4, 8} {
+		got := runQueryN(t, string(source), query, n)
+		if fmt.Sprint(got) != fmt.Sprint([]string{`<keyword></keyword>`}) {
+			t.Errorf("%d threads: got %v, want one keyword", n, got)
+		}
+	}
+}
