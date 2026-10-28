@@ -97,14 +97,17 @@ func Generate(opts *Options) error {
 func emitDirectory(opts *Options) (string, error) {
 	s, err := os.Stat(opts.OutputDirectory)
 	if err != nil {
-		if os.IsNotExist(err) {
-			opts.Logger.Printf("Creating directory %s...\n", opts.OutputDirectory)
-			if err = os.Mkdir(opts.OutputDirectory, os.ModeDir); err != nil {
-				return "", fmt.Errorf("could not create output directory %s: %w", opts.OutputDirectory, err)
-			}
+		if !os.IsNotExist(err) {
+			return "", err
 		}
 
-		return "", err
+		opts.Logger.Printf("Creating directory %s...\n", opts.OutputDirectory)
+		if err = os.MkdirAll(opts.OutputDirectory, 0o755); err != nil {
+			return "", fmt.Errorf("could not create output directory %s: %w", opts.OutputDirectory, err)
+		}
+		if s, err = os.Stat(opts.OutputDirectory); err != nil {
+			return "", err
+		}
 	}
 	if !s.IsDir() {
 		return "", fmt.Errorf("%s is not a directory", opts.OutputDirectory)
