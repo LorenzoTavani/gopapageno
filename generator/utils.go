@@ -27,7 +27,7 @@ func getIdentifier(input string, index *int) string {
 			((input[*index] >= 'a' && input[*index] <= 'z') ||
 				(input[*index] >= 'A' && input[*index] <= 'Z') ||
 				(input[*index] == '_') ||
-				(input[*index] >= '9' && input[*index] <= '0')) {
+				(input[*index] >= '0' && input[*index] <= '9')) {
 			*index++
 		}
 	}
