@@ -1,9 +1,5 @@
 package main
 
-// Copiare questo file, senza modifiche, in examples/adder/opp, examples/adder/aopp
-// e examples/adder/copp: ogni cartella e' un pacchetto main con le sue NewLexer,
-// NewGrammar ed entries (quest'ultima in benchmark_test.go).
-
 import (
 	"context"
 	"fmt"
