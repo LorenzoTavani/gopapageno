@@ -197,7 +197,7 @@ Query syntax:
 - `\\` (two backslashes) is the parent axis and `\\\\` (four backslashes) the ancestor-or-self axis;
 - a predicate between square brackets can combine, with `and`, `or`, `not` and parentheses, attribute tests (`@a`, `@a="v"`), element names (`[p]`) and paths (`[/p/b]`). A path inside a predicate starts at the element that carries the predicate and, unless it is a single name, must begin with an axis: `//div[/p/b]` selects the `div` elements that have a child `p` with a child `b`.
 
-Not supported: axes written with `::`, positions, functions, sibling axes, and more than one predicate per step. Time and memory grow with the square of the number of results collected in one sequence of siblings. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+Not supported: axes written with `::`, positions, functions, sibling axes, and more than one predicate per step. See [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
 
 The XPathMark benchmark queries are also built by hand in `ext/xpath/executor.go` (`LoadQuery`), but the XMark data they need is not part of this repository.
 

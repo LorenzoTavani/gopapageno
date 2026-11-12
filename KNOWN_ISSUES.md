@@ -13,7 +13,6 @@ Status legend:
 
 | # | Issue | Status |
 |---|---|---|
-| X1 | **Time and memory grow with the square of the number of results** collected in one sequence of siblings. `contextSolutionsMap.merge` copies all accumulated solutions at every reduction, and every intermediate node of the parse tree keeps its own copy. Measured with `//div`, one thread: 1500 results take 1.2 s; 2000 take 4.9 s and 800 MB; 3000 take 93 s and 1.8 GB (the machine, with 2.8 GiB of RAM, starts swapping). Queries that select few nodes, as the XPathMark ones, are not affected. The copy was already present in giornetta's version. A possible fix is to reuse the table of the left node, which the reduction consumes, instead of copying it. | confirmed |
 | X2 | The query parser covers a **fragment of XPath**: downward and upward paths with boolean predicates over paths and attribute tests (`=` only). Not supported: positions (`[2]`), functions (`count`, `contains`), sibling axes, more than one predicate per step. | read |
 | X3 | Relative multi-step paths in a predicate need a leading axis: write `[/a/b]`, not `[a/b]`. A single element name (`[a]`) works. | confirmed |
 | X4 | Axes written with `::` (`child::`, `descendant::`, `parent::`, `ancestor::`) are not supported; the query is rejected with a lexing error. | confirmed |
@@ -25,7 +24,8 @@ Status legend:
 | X10 | The performance figures in the comments of `examples/xpath/cmd/xpath/main_test.go` were taken on two different CPUs (about 72-82 ms per operation on a Ryzen 7, between 32 and 127 ms on a Core i7) and are not comparable. The timings of A6 and A7 were taken before the predicate trees of those two queries were fixed, so they measured a wrong predicate. | read |
 | X11 | The hand-built queries A1, A4 and A5 look for the element `Text` (capital T), while the XMark schema and the author's own example `examples/xpath/data/testbug.xml` use `text`, so A1 finds nothing on that file. The name comes from the original XPath code (April 2024), so it is inherited. Whether the data that code was written for used `Text` is unknown. | confirmed (mismatch), cause unknown |
 | X12 | Five white-box test files of `ext/xpath` (`contextSolutions`, `executionThread`, `fpe`, `rpe`, `speculation`; about 2000 lines) were written for the previous internal design and no longer compile. They are excluded with the build tag `wip` (`go test -tags wip ...` lists the errors). Internals are covered only through black-box tests. | confirmed |
-| X15 | The same program disables the garbage collector unconditionally (`debug.SetGCPercent(-1)` and an unlimited memory limit, with a note that it is faster on a 30 MB file). Together with X1 this makes queries with many results exhaust the memory sooner. | read |
+| X15 | The same program disables the garbage collector unconditionally (`debug.SetGCPercent(-1)` and an unlimited memory limit, with a note that it is faster on a 30 MB file). | read |
+| X16 | The `dev` branch of `vvihorev/gopapageno` (23 commits, 2025-02-24 to 2025-03-09: preallocated execution tables, singly linked lists for threads and children, preallocated non-terminals, tag encoding at lexing time, context solutions as linked lists) was **not merged**. It starts from the common commit of 2024-11-02, in parallel with `main`, and a trial merge conflicts in 25 files (13 in `ext/xpath`). Its last commit says "broken tests for now". | confirmed |
 
 ## Parsing core and generator
 
