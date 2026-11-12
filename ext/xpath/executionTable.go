@@ -53,7 +53,7 @@ func (et *executionTable) merge(incoming *executionTable) (ok bool) {
 				et.records[id].threads.append(incomingRecord.threads.array[i])
 			}
 		}
-		et.records[id].ctxSols.merge(incomingRecord.ctxSols)
+		et.records[id].ctxSols = mergeContextSolutions(et.records[id].ctxSols, incomingRecord.ctxSols)
 	}
 	return
 }

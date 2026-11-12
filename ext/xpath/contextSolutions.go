@@ -8,11 +8,11 @@ import (
 type contextSolutionsMap map[int]map[int][]*NonTerminal
 
 func (ctxSolMap contextSolutionsMap) addContextSolution(start, end int, sols ...*NonTerminal) {
-	_, ok := ctxSolMap[start];
+	_, ok := ctxSolMap[start]
 	if !ok {
 		ctxSolMap[start] = make(map[int][]*NonTerminal)
 	}
-	_, ok = ctxSolMap[start][end];
+	_, ok = ctxSolMap[start][end]
 	if !ok {
 		ctxSolMap[start][end] = make([]*NonTerminal, 0)
 	}
@@ -68,16 +68,28 @@ func transitiveClosure(maps []contextSolutionsMap) contextSolutionsMap {
 	return start.transitiveClosure(maps[1:]...)
 }
 
-func (ctxSolMap contextSolutionsMap) merge(incoming contextSolutionsMap) {
-	if incoming == nil {
-		return
+// mergeContextSolutions joins two context-solution maps and returns the result.
+//
+// The smaller map is merged into the larger one, and when one of the two is
+// empty the other one is returned as it is, so the cost is proportional to the
+// size of the smaller map and not to the size of the larger one. The input maps
+// are consumed: only the returned map must be used afterwards.
+func mergeContextSolutions(receiving, incoming contextSolutionsMap) contextSolutionsMap {
+	if len(incoming) == 0 {
+		return receiving
 	}
-
-	for start := range incoming {
-		for end := range incoming[start] {
-			ctxSolMap.addContextSolution(start, end, incoming[start][end]...)
+	if len(receiving) == 0 {
+		return incoming
+	}
+	if len(receiving) < len(incoming) {
+		receiving, incoming = incoming, receiving
+	}
+	for start, ends := range incoming {
+		for end, solutions := range ends {
+			receiving.addContextSolution(start, end, solutions...)
 		}
 	}
+	return receiving
 }
 
 // solutionsFor returns all the solutions that are reachable from the specified context

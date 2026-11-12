@@ -376,3 +376,23 @@ func TestTestbugDoesNotLoop(t *testing.T) {
 		}
 	}
 }
+
+// The memory allocated while parsing must grow linearly with the number of
+// results: the context solutions are joined without being copied. A quadratic
+// growth would make the second run allocate about four times the first one.
+func TestMemoryGrowsLinearlyWithTheNumberOfResults(t *testing.T) {
+	alloc := func(n int) uint64 {
+		source := bigDocument(n)
+		runtime.GC()
+		var before, after runtime.MemStats
+		runtime.ReadMemStats(&before)
+		runQueryN(t, source, `//div`, 1)
+		runtime.ReadMemStats(&after)
+		return after.TotalAlloc - before.TotalAlloc
+	}
+	alloc(500) // warm up
+	small, large := alloc(1000), alloc(2000)
+	if large > 3*small {
+		t.Errorf("allocated %d MB for 1000 results and %d MB for 2000: the growth is not linear", small>>20, large>>20)
+	}
+}
