@@ -105,10 +105,15 @@ func (p *COPParser) Parse(ctx context.Context, tokensLists []*LOS[Token]) (*Toke
 	for thread := 0; thread < p.concurrency; thread++ {
 		var nextToken *Token
 
-		// If the thread is not the last, take the first token of the next stack as lookahead.
+		// If the thread is not the last, take a copy of the first token of the next stack as lookahead.
+		// The copy must be made here, before the worker of the next stack starts: that worker changes
+		// the precedence of this very token while this one would still be reading it.
 		if thread < p.concurrency-1 {
 			nextInputListIter := tokensLists[thread+1].HeadIterator()
-			nextToken = nextInputListIter.Next()
+			if first := nextInputListIter.Next(); first != nil {
+				lookahead := *first
+				nextToken = &lookahead
+			}
 		}
 
 		s := NewCOPPStack(p.pools.stacks[thread], p.pools.stateStacks[thread], p.pools.producedTokensMap[thread])
