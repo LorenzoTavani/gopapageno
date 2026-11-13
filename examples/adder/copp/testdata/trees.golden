@@ -1,0 +1,105 @@
+random sum 1 | sweep | 1 threads | bce1236b18030f58 2995 34150
+random sum 1 | sweep | 2 threads | bce1236b18030f58 2995 34150
+random sum 1 | sweep | 3 threads | bce1236b18030f58 2995 34150
+random sum 1 | sweep | 4 threads | bce1236b18030f58 2995 34150
+random sum 1 | sweep | 8 threads | bce1236b18030f58 2995 34150
+random sum 1 | parallel | 1 threads | bce1236b18030f58 2995 34150
+random sum 1 | parallel | 2 threads | bce1236b18030f58 2995 34150
+random sum 1 | parallel | 3 threads | bce1236b18030f58 2995 34150
+random sum 1 | parallel | 4 threads | bce1236b18030f58 2995 34150
+random sum 1 | parallel | 8 threads | bce1236b18030f58 2995 34150
+random sum 1 | mixed | 1 threads | bce1236b18030f58 2995 34150
+random sum 1 | mixed | 2 threads | bce1236b18030f58 2995 34150
+random sum 1 | mixed | 3 threads | bce1236b18030f58 2995 34150
+random sum 1 | mixed | 4 threads | bce1236b18030f58 2995 34150
+random sum 1 | mixed | 8 threads | bce1236b18030f58 2995 34150
+random sum 2 | sweep | 1 threads | e2e76c8098d92327 3203 35531
+random sum 2 | sweep | 2 threads | e2e76c8098d92327 3203 35531
+random sum 2 | sweep | 3 threads | e2e76c8098d92327 3203 35531
+random sum 2 | sweep | 4 threads | e2e76c8098d92327 3203 35531
+random sum 2 | sweep | 8 threads | e2e76c8098d92327 3203 35531
+random sum 2 | parallel | 1 threads | e2e76c8098d92327 3203 35531
+random sum 2 | parallel | 2 threads | e2e76c8098d92327 3203 35531
+random sum 2 | parallel | 3 threads | e2e76c8098d92327 3203 35531
+random sum 2 | parallel | 4 threads | e2e76c8098d92327 3203 35531
+random sum 2 | parallel | 8 threads | e2e76c8098d92327 3203 35531
+random sum 2 | mixed | 1 threads | e2e76c8098d92327 3203 35531
+random sum 2 | mixed | 2 threads | e2e76c8098d92327 3203 35531
+random sum 2 | mixed | 3 threads | e2e76c8098d92327 3203 35531
+random sum 2 | mixed | 4 threads | e2e76c8098d92327 3203 35531
+random sum 2 | mixed | 8 threads | e2e76c8098d92327 3203 35531
+random sum 3 | sweep | 1 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | sweep | 2 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | sweep | 3 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | sweep | 4 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | sweep | 8 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | parallel | 1 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | parallel | 2 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | parallel | 3 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | parallel | 4 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | parallel | 8 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | mixed | 1 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | mixed | 2 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | mixed | 3 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | mixed | 4 threads | 1d23e68b32d20353 2649 29769
+random sum 3 | mixed | 8 threads | 1d23e68b32d20353 2649 29769
+random sum 4 | sweep | 1 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | sweep | 2 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | sweep | 3 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | sweep | 4 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | sweep | 8 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | parallel | 1 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | parallel | 2 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | parallel | 3 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | parallel | 4 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | parallel | 8 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | mixed | 1 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | mixed | 2 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | mixed | 3 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | mixed | 4 threads | 4c9da9bb17a73820 2717 29132
+random sum 4 | mixed | 8 threads | 4c9da9bb17a73820 2717 29132
+random sum 5 | sweep | 1 threads | 871496a5674905a1 1550 18277
+random sum 5 | sweep | 2 threads | 871496a5674905a1 1550 18277
+random sum 5 | sweep | 3 threads | 871496a5674905a1 1550 18277
+random sum 5 | sweep | 4 threads | 871496a5674905a1 1550 18277
+random sum 5 | sweep | 8 threads | 871496a5674905a1 1550 18277
+random sum 5 | parallel | 1 threads | 871496a5674905a1 1550 18277
+random sum 5 | parallel | 2 threads | 871496a5674905a1 1550 18277
+random sum 5 | parallel | 3 threads | 871496a5674905a1 1550 18277
+random sum 5 | parallel | 4 threads | 871496a5674905a1 1550 18277
+random sum 5 | parallel | 8 threads | 871496a5674905a1 1550 18277
+random sum 5 | mixed | 1 threads | 871496a5674905a1 1550 18277
+random sum 5 | mixed | 2 threads | 871496a5674905a1 1550 18277
+random sum 5 | mixed | 3 threads | 871496a5674905a1 1550 18277
+random sum 5 | mixed | 4 threads | 871496a5674905a1 1550 18277
+random sum 5 | mixed | 8 threads | 871496a5674905a1 1550 18277
+file small.txt | sweep | 1 threads | 7202d65d52b79f4c 25 28
+file small.txt | sweep | 2 threads | 7202d65d52b79f4c 25 28
+file small.txt | sweep | 3 threads | 7202d65d52b79f4c 25 28
+file small.txt | sweep | 4 threads | 7202d65d52b79f4c 25 28
+file small.txt | sweep | 8 threads | 7202d65d52b79f4c 25 28
+file small.txt | parallel | 1 threads | 7202d65d52b79f4c 25 28
+file small.txt | parallel | 2 threads | 7202d65d52b79f4c 25 28
+file small.txt | parallel | 3 threads | 7202d65d52b79f4c 25 28
+file small.txt | parallel | 4 threads | 7202d65d52b79f4c 25 28
+file small.txt | parallel | 8 threads | 7202d65d52b79f4c 25 28
+file small.txt | mixed | 1 threads | 7202d65d52b79f4c 25 28
+file small.txt | mixed | 2 threads | 7202d65d52b79f4c 25 28
+file small.txt | mixed | 3 threads | 7202d65d52b79f4c 25 28
+file small.txt | mixed | 4 threads | 7202d65d52b79f4c 25 28
+file small.txt | mixed | 8 threads | 7202d65d52b79f4c 25 28
+file 1MB.txt | sweep | 1 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | sweep | 2 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | sweep | 3 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | sweep | 4 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | sweep | 8 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | parallel | 1 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | parallel | 2 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | parallel | 3 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | parallel | 4 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | parallel | 8 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | mixed | 1 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | mixed | 2 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | mixed | 3 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | mixed | 4 threads | 221222bcb7534e74 728000 92950000
+file 1MB.txt | mixed | 8 threads | 221222bcb7534e74 728000 92950000
