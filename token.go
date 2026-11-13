@@ -29,6 +29,12 @@ type Token struct {
 	Next      *Token
 	Child     *Token
 	LastChild *Token
+
+	// Parent is the node being built for the cyclic sequence that starts at
+	// this token: the "future father" of the leftmost token of a prefix of a
+	// cyclic rule. It is only set by the cyclic parser, and it is copied together
+	// with the token.
+	Parent *Token
 }
 
 func (t *Token) IsTerminal() bool {

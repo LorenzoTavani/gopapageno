@@ -22,8 +22,6 @@ type COPParser struct {
 		sweepInput      *Pool[stack[Token]]
 		sweepStack      *Pool[stack[*Token]]
 		sweepStateStack *Pool[stack[CyclicAutomataState]]
-
-		producedTokensMap []map[*Token]*Token
 	}
 
 	workers []*coppWorker
@@ -53,8 +51,6 @@ func NewCOPParser(g *Grammar, src []byte, opts *RunOptions) *COPParser {
 	// Initialize memory pools for cyclic states.
 	p.pools.stateStacks = make([]*Pool[stack[CyclicAutomataState]], p.concurrency)
 
-	p.pools.producedTokensMap = make([]map[*Token]*Token, p.concurrency)
-
 	stackMult := 1.0
 	if stackPoolBaseSize == 0 {
 		stackMult = 1.0 - (0.999 * opts.ParallelFactor)
@@ -67,8 +63,6 @@ func NewCOPParser(g *Grammar, src []byte, opts *RunOptions) *COPParser {
 		p.pools.stacks[thread] = NewPool(stackPoolBaseSize+1, WithConstructor(newStackFactory[*Token](stackLen)))
 		p.pools.nonterminals[thread] = NewPool[Token](int(float64(ntPoolBaseSize) * ntMultiplier))
 		p.pools.stateStacks[thread] = NewPool(stackPoolBaseSize+1, WithConstructor(newStackFactory[CyclicAutomataState](stackLen)))
-
-		p.pools.producedTokensMap[thread] = make(map[*Token]*Token, int(float64(ntPoolBaseSize)*ntMultiplier))
 	}
 
 	// If reduction is sweep or mixed, we create another stack and input for the final pass.
@@ -116,7 +110,7 @@ func (p *COPParser) Parse(ctx context.Context, tokensLists []*LOS[Token]) (*Toke
 			}
 		}
 
-		s := NewCOPPStack(p.pools.stacks[thread], p.pools.stateStacks[thread], p.pools.producedTokensMap[thread])
+		s := NewCOPPStack(p.pools.stacks[thread], p.pools.stateStacks[thread])
 		go p.workers[thread].parse(ctx, s, tokensLists[thread], nextToken, false, resultCh, errCh)
 	}
 
@@ -137,13 +131,7 @@ func (p *COPParser) Parse(ctx context.Context, tokensLists []*LOS[Token]) (*Toke
 
 			// Create the final input by joining together the stacks from the previous step.
 			stack := p.results[0].Combine()
-			input, producedTokens := p.CombineSweepLOS(p.pools.sweepInput, p.results[1:])
-
-			// Merge produced tokens maps
-			// TODO: Find a better place to handle this.
-			for k, v := range producedTokens {
-				stack.ProducedTokens[k] = v
-			}
+			input := p.CombineSweepLOS(p.pools.sweepInput, p.results[1:])
 
 			// Sets correct Concurrency level for final sweep.
 			p.concurrency = 1
@@ -165,13 +153,7 @@ func (p *COPParser) Parse(ctx context.Context, tokensLists []*LOS[Token]) (*Toke
 				// TODO: I should find a way to make this work without creating a new LOS for the inputs.
 				// Unfortunately the new stack depends on the content of tokensLists[i] since its elements are stored there.
 				// We can't erase the old input easily to reuse its storage.
-				input, producedTokens := stackRight.CombineLOS(tokensLists[i].pool)
-
-				// Merge produced tokens maps
-				// TODO: Find a better place to handle this.
-				for k, v := range producedTokens {
-					stack.ProducedTokens[k] = v
-				}
+				input := stackRight.CombineLOS(tokensLists[i].pool)
 
 				go p.workers[i].parse(ctx, stack, input, nil, true, resultCh, errCh)
 			}
@@ -318,7 +300,7 @@ func (w *coppWorker) parse(ctx context.Context, stack *COPPStack, tokens *LOS[To
 				continue
 			}
 
-			lhsToken, err := w.matchPrefix(lhs, ruleNum, rhsTokens[:len(rhsTokens)-prefixCount-1], stack)
+			lhsToken, err := w.matchPrefix(lhs, ruleNum, rhsTokens[:len(rhsTokens)-prefixCount-1])
 			if err != nil {
 				errCh <- fmt.Errorf("worker %d could not match: %v", w.id, err)
 				return
@@ -389,7 +371,7 @@ func (w *coppWorker) parse(ctx context.Context, stack *COPPStack, tokens *LOS[To
 					stack.State.PreviousLen = st.CurrentLen
 				}
 
-				lhsToken, err := w.match(rhs, rhsTokens, stack)
+				lhsToken, err := w.match(rhs, rhsTokens)
 				if err != nil {
 					errCh <- fmt.Errorf("worker %d could not match: %v", w.id, err)
 					return
@@ -416,39 +398,37 @@ func (w *coppWorker) parse(ctx context.Context, stack *COPPStack, tokens *LOS[To
 	resultCh <- parseResult[COPPStack]{w.id, stack}
 }
 
-func (w *coppWorker) matchPrefix(lhs TokenType, ruleNum uint16, rhsTokens []*Token, s *COPPStack) (*Token, error) {
+func (w *coppWorker) matchPrefix(lhs TokenType, ruleNum uint16, rhsTokens []*Token) (*Token, error) {
 	var lhsToken *Token
 	var rf RuleFlags
 
 	firstToken := rhsTokens[0]
 
-	parentToken, ok := s.ProducedTokens[firstToken]
-	if !ok {
+	if firstToken.Parent == nil {
 		lhsToken = w.ntPool.Get()
 		lhsToken.Type = lhs
 
 		rf = rf.Set(RuleCyclic)
 	} else {
-		lhsToken = parentToken
+		lhsToken = firstToken.Parent
 
 		rf = rf.Set(RuleAppend)
 	}
 
-	rightParent, ok := s.ProducedTokens[rhsTokens[len(rhsTokens)-1]]
-	if ok {
-		rhsTokens[len(rhsTokens)-1] = rightParent
+	if last := rhsTokens[len(rhsTokens)-1]; last.Parent != nil {
+		rhsTokens[len(rhsTokens)-1] = last.Parent
 		rf = rf.Set(RuleCombine)
 	}
 
 	//Execute the semantic action
 	w.parser.g.Func(ruleNum, rf, lhsToken, rhsTokens, w.id)
 
-	s.ProducedTokens[rhsTokens[0]] = lhsToken
+	firstToken.Parent = lhsToken
 
 	return firstToken, nil
 }
 
-func (w *coppWorker) match(rhs []TokenType, rhsTokens []*Token, s *COPPStack) (*Token, error) {
+func (w *coppWorker) match(rhs []TokenType, rhsTokens []*Token) (*Token, error) {
 	lhs, ruleNum := w.parser.g.findRuleMatch(rhs)
 	if lhs == TokenEmpty {
 		return nil, fmt.Errorf("could not find match for rhs %v", rhs)
@@ -458,8 +438,7 @@ func (w *coppWorker) match(rhs []TokenType, rhsTokens []*Token, s *COPPStack) (*
 
 	rt := RuleCyclic
 
-	parentToken, ok := s.ProducedTokens[rhsTokens[0]]
-	if !ok {
+	if parentToken := rhsTokens[0].Parent; parentToken == nil {
 		lhsToken = w.ntPool.Get()
 		lhsToken.Type = lhs
 	} else {
@@ -467,9 +446,8 @@ func (w *coppWorker) match(rhs []TokenType, rhsTokens []*Token, s *COPPStack) (*
 		rt = RuleAppend
 	}
 
-	rightParent, ok := s.ProducedTokens[rhsTokens[len(rhsTokens)-1]]
-	if ok {
-		rhsTokens[len(rhsTokens)-1] = rightParent
+	if last := rhsTokens[len(rhsTokens)-1]; last.Parent != nil {
+		rhsTokens[len(rhsTokens)-1] = last.Parent
 		rt = RuleCombine
 	}
 
@@ -479,9 +457,8 @@ func (w *coppWorker) match(rhs []TokenType, rhsTokens []*Token, s *COPPStack) (*
 	return lhsToken, nil
 }
 
-func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStack) (*LOS[Token], map[*Token]*Token) {
+func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStack) *LOS[Token] {
 	input := NewLOS[Token](pool)
-	newProducedTokens := make(map[*Token]*Token)
 
 	tokenSet := make(map[*Token]struct{}, stacks[0].Length())
 
@@ -505,11 +482,7 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 					if _, ok := tokenSet[stateToken]; !ok {
 						stateToken.Precedence = PrecEmpty
 
-						newToken := input.Push(*stateToken)
-						parentToken, ok := stacks[i].ProducedTokens[stateToken]
-						if ok {
-							newProducedTokens[newToken] = parentToken
-						}
+						input.Push(*stateToken)
 
 						tokenSet[stateToken] = struct{}{}
 					}
@@ -519,11 +492,7 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 					if _, ok := tokenSet[stateToken]; !ok {
 						stateToken.Precedence = PrecEmpty
 
-						newToken := input.Push(*stateToken)
-						parentToken, ok := stacks[i].ProducedTokens[stateToken]
-						if ok {
-							newProducedTokens[newToken] = parentToken
-						}
+						input.Push(*stateToken)
 
 						tokenSet[stateToken] = struct{}{}
 					}
@@ -533,11 +502,7 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 					if _, ok := tokenSet[stateToken]; !ok {
 						stateToken.Precedence = PrecEmpty
 
-						newToken := input.Push(*stateToken)
-						parentToken, ok := stacks[i].ProducedTokens[stateToken]
-						if ok {
-							newProducedTokens[newToken] = parentToken
-						}
+						input.Push(*stateToken)
 
 						tokenSet[stateToken] = struct{}{}
 					}
@@ -550,11 +515,7 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 				if _, ok := tokenSet[stateToken]; !ok {
 					stateToken.Precedence = PrecEmpty
 
-					newToken := input.Push(*stateToken)
-					parentToken, ok := stacks[i].ProducedTokens[stateToken]
-					if ok {
-						newProducedTokens[newToken] = parentToken
-					}
+					input.Push(*stateToken)
 
 					tokenSet[stateToken] = struct{}{}
 				}
@@ -563,16 +524,12 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 			if _, ok := tokenSet[t]; !ok {
 				t.Precedence = PrecEmpty
 
-				newToken := input.Push(*t)
-				parentToken, ok := stacks[i].ProducedTokens[t]
-				if ok {
-					newProducedTokens[newToken] = parentToken
-				}
+				input.Push(*t)
 
 				tokenSet[t] = struct{}{}
 			}
 		}
 	}
 
-	return input, newProducedTokens
+	return input
 }
