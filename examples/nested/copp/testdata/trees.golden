@@ -1,0 +1,6 @@
+example.txt | sweep | 1 thread | e87c8262d4fcfb2c 11 13
+example.txt | parallel | 1 thread | e87c8262d4fcfb2c 11 13
+example.txt | mixed | 1 thread | e87c8262d4fcfb2c 11 13
+sum of 3000 terms | sweep | 1 thread | a9d8d7b34447f069 11999 4501500
+sum of 3000 terms | parallel | 1 thread | a9d8d7b34447f069 11999 4501500
+sum of 3000 terms | mixed | 1 thread | a9d8d7b34447f069 11999 4501500
