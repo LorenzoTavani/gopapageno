@@ -20,9 +20,20 @@ S : P
 
 P : (T PLUS)+ T
 {
-	newValue := parserInt64Pools[thread].Get()
-	*newValue = *$1.Value.(*int64) + *$3.Value.(*int64)
-	$$.Value = newValue
+	// The rule is cyclic, so it is applied once per term. The first time the
+	// node does not exist and takes the sum of the first two terms; when the
+	// sequence is extended (RuleAppend) the node already holds the partial sum.
+	var firstValue int64
+
+	if !ruleFlags.Has(gopapageno.RuleAppend) {
+		$$.Value = parserInt64Pools[thread].Get()
+
+		firstValue = *$1.Value.(*int64)
+	} else {
+		firstValue = *$$.Value.(*int64)
+	}
+
+	*$$.Value.(*int64) = firstValue + *$3.Value.(*int64)
 } | LPAR S RPAR
 {
 	$$.Value = $2.Value

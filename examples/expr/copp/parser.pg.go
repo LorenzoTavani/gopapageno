@@ -302,9 +302,20 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 
 			{
-				newValue := parserInt64Pools[thread].Get()
-				*newValue = *D_E_P_T1.Value.(*int64) + *D_E_P_T3.Value.(*int64)
-				P0.Value = newValue
+				// The rule is cyclic, so it is applied once per term. The first time the
+				// node does not exist and takes the sum of the first two terms; when the
+				// sequence is extended (RuleAppend) the node already holds the partial sum.
+				var firstValue int64
+			
+				if !ruleFlags.Has(gopapageno.RuleAppend) {
+					P0.Value = parserInt64Pools[thread].Get()
+			
+					firstValue = *D_E_P_T1.Value.(*int64)
+				} else {
+					firstValue = *P0.Value.(*int64)
+				}
+			
+				*P0.Value.(*int64) = firstValue + *D_E_P_T3.Value.(*int64)
 			}
 			_ = D_E_P_T1
 			_ = PLUS2
@@ -333,9 +344,20 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 
 			{
-				newValue := parserInt64Pools[thread].Get()
-				*newValue = *D_E_P_T1.Value.(*int64) + *D_T3.Value.(*int64)
-				P0.Value = newValue
+				// The rule is cyclic, so it is applied once per term. The first time the
+				// node does not exist and takes the sum of the first two terms; when the
+				// sequence is extended (RuleAppend) the node already holds the partial sum.
+				var firstValue int64
+			
+				if !ruleFlags.Has(gopapageno.RuleAppend) {
+					P0.Value = parserInt64Pools[thread].Get()
+			
+					firstValue = *D_E_P_T1.Value.(*int64)
+				} else {
+					firstValue = *P0.Value.(*int64)
+				}
+			
+				*P0.Value.(*int64) = firstValue + *D_T3.Value.(*int64)
 			}
 			_ = D_E_P_T1
 			_ = PLUS2
@@ -394,9 +416,20 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 
 			{
-				newValue := parserInt64Pools[thread].Get()
-				*newValue = *D_T1.Value.(*int64) + *D_E_P_T3.Value.(*int64)
-				P0.Value = newValue
+				// The rule is cyclic, so it is applied once per term. The first time the
+				// node does not exist and takes the sum of the first two terms; when the
+				// sequence is extended (RuleAppend) the node already holds the partial sum.
+				var firstValue int64
+			
+				if !ruleFlags.Has(gopapageno.RuleAppend) {
+					P0.Value = parserInt64Pools[thread].Get()
+			
+					firstValue = *D_T1.Value.(*int64)
+				} else {
+					firstValue = *P0.Value.(*int64)
+				}
+			
+				*P0.Value.(*int64) = firstValue + *D_E_P_T3.Value.(*int64)
 			}
 			_ = D_T1
 			_ = PLUS2
@@ -425,9 +458,20 @@ func NewGrammar() *gopapageno.Grammar {
 			}
 
 			{
-				newValue := parserInt64Pools[thread].Get()
-				*newValue = *D_T1.Value.(*int64) + *D_T3.Value.(*int64)
-				P0.Value = newValue
+				// The rule is cyclic, so it is applied once per term. The first time the
+				// node does not exist and takes the sum of the first two terms; when the
+				// sequence is extended (RuleAppend) the node already holds the partial sum.
+				var firstValue int64
+			
+				if !ruleFlags.Has(gopapageno.RuleAppend) {
+					P0.Value = parserInt64Pools[thread].Get()
+			
+					firstValue = *D_T1.Value.(*int64)
+				} else {
+					firstValue = *P0.Value.(*int64)
+				}
+			
+				*P0.Value.(*int64) = firstValue + *D_T3.Value.(*int64)
 			}
 			_ = D_T1
 			_ = PLUS2
