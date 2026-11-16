@@ -1,7 +1,7 @@
 # Known issues
 
 Open problems of the code, found while reviewing it and merging the two lines. 
-The defects that were already fixed are not listed here: they are in the commit history (`git log`). Last updated: 2026-10-27.
+The defects that were already fixed are not listed here: they are in the commit history (`git log`). Last updated: 2026-11-16.
 
 Status legend:
 - **confirmed**: reproduced with a test, a build or a measurement;
@@ -38,9 +38,10 @@ Status legend:
 | C7 | Dead code in `parser_transforms.go` (`extractTerminalRules`, `addNewRules`, an empty `else`). | read |
 | C8 | Semantic actions on renaming rules (`A -> B`) are removed by the generator, by construction (Fischer normal form). The generator prints `WARNING: semantic action is deleted`, also when the action only passed a value on, so the loss is harmless. | confirmed |
 | C9 | `generator/regex` keeps its own copies of the stack and pool code (`stack.go`, `stackpool.go`, `listofstacks.go`, ...), and `generator/lexer.go` has a TODO that asks whether a hand-written regular expression parser should be built. | author-reported |
-| C10 | `benchmark.Entry.Result` and `benchmark.RunExpect` are never used: the benchmarks do not check that the parsing result is the expected one. Only the `adder` examples have tests (`golden_test.go`) that check the declared results. | confirmed |
+| C10 | `benchmark.Entry.Result` and `benchmark.RunExpect` are never used: the benchmarks do not check that the parsing result is the expected one. Only `adder` (`golden_test.go`) and `expr/copp` (`values_test.go`) have tests that check the computed values; for the other examples a wrong value goes unnoticed (E6 was found this way). | confirmed |
 | C11 | The `main.pg.go` programs produced by the generator take `-pf` with default `4`, while the help text and the README give the range `(0, 1]`, and they always run with the garbage collector disabled (`WithGarbageCollection(false)`). | read |
 | C12 | With the `sweep` reduction and three or more threads, the cyclic JSON example (`examples/json/copp`) builds a tree that is **missing many nodes**: `{"k": [1,\n2,\n3], ...}` repeated 50 times has 803 nodes sequentially and 547 with three threads. `parallel` and `mixed` are correct, as are `sweep` with two threads and the real files. It is deterministic, and the characterization test of that example records it as a known difference. The cause is not found: the state in which each worker ended is not the missing piece (appending it to the input of the sweep changes nothing). The bug is in the code that the C-OPP algorithm of the book replaces (`CombineSweepLOS`). | confirmed |
+| C13 | `examples/nested/copp` cannot be parsed by more than one worker. With two or more threads, any reduction strategy, the parser returns `could not find match for rhs [...]` as soon as the text is split (checked with sums of 50 and 3000 terms with a new line after every seventh operator, `ParallelFactor` 0.5, and 3000 terms with 0.1; with `ParallelFactor` 1 the very small stacks that the program allocates for a short text overflow first, with the panic `calculations were wrong`); with a cut before the `*` a worker panics with `index out of range`, and the panic is raised in another goroutine so it ends the process. With one thread the value is right. The grammar has a cycle of three symbols, `(V TIMES OPERATOR)+ V`, while the other cyclic examples have cycles of one or two: the chunk that starts or ends inside the cycle is not matched. The same failure happens on the code from before the unification work (commit `ce75289`). `TestOneThread` and `TestKnownIssueC13` in `examples/nested/copp` record it; the second one fails when the problem is fixed, as a reminder to remove it. For this reason `nested` has no `benchmark_test.go`. | confirmed |
 
 ## Examples and tooling
 
@@ -51,4 +52,3 @@ Status legend:
 | E3 | `go vet ./...` prints many `struct literal uses unkeyed fields` warnings for generated files; use `go vet -composites=false ./...`. | confirmed |
 | E4 | The Go module path is provisional (`github.com/LorenzoTavani/gopapageno`) until the final location is decided. | |
 | E5 | The reproducibility of the generator (same grammar, same output) was checked on a few examples only. All committed generated files are identical to the output of the current generator. | confirmed |
-| E6 | `examples/expr/copp` is wrong in two ways. The action of `P : (T PLUS)+ T` ignores the rule flags, so a sum of more than two terms gives the first plus the last term (`1 + 2 + ... + 9` gives 10, not 45). And its benchmark entries are copied from the grammar with `*`: they expect `1 + 2*3*(4+5)` for `small.txt`, which holds two sums (90), and `1MB.txt` and `10MB.txt` contain `*`, which the cyclic lexer does not have. The files written for this grammar are `copp_example.txt` and `copp_example_1MB.txt`. | confirmed |
