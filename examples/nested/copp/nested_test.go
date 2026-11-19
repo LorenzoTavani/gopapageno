@@ -107,8 +107,9 @@ func TestOneThread(t *testing.T) {
 // TestKnownIssueC13 documents that the example cannot be parsed by more than one
 // worker: with two or more threads the parser returns an error as soon as the
 // text is split (the error comes from the worker that has to match a chunk that
-// starts or ends inside a cycle of three symbols). The failure is the same on the
-// code from before the unification work, so it is not caused by it.
+// starts or ends inside a cycle of three symbols). The failure is the same on
+// commit ce75289, the last one before any change to the cyclic parser (its parser
+// is the one of commit 46dea04), so it is not caused by those changes.
 //
 // The test passes while the problem exists. When it starts failing, the problem
 // is fixed: move these thread counts into TestOneThread and delete this test.
