@@ -11,18 +11,28 @@ import (
 	"github.com/LorenzoTavani/gopapageno/internal/treecheck"
 )
 
+// cut says where sum puts a new line before every seventh term. The lexer cuts
+// the input at new lines (%cut \n), so the text can be split between the workers
+// there.
+type cut int
+
+const (
+	cutAfterOperator cut = iota // ... 6 *+=+= \n7 ...
+	cutBeforeTimes              // ... 6\n *+=+= 7 ...
+)
+
 // sum builds the source 1 *+=+= 2 *+=+= ... *+=+= n and the value of the sum.
-// When cutAfterOperator is true a new line follows every seventh operator: the
-// lexer cuts the input at new lines (%cut \n), so the text can be split between
-// the workers there.
-func sum(n int, cutAfterOperator bool) (string, int64) {
+func sum(n int, at cut) (string, int64) {
 	var sb strings.Builder
 	var want int64
 
 	for i := 1; i <= n; i++ {
 		if i > 1 {
+			if at == cutBeforeTimes && i%7 == 0 {
+				sb.WriteString("\n")
+			}
 			sb.WriteString(" *+=+= ")
-			if cutAfterOperator && i%7 == 0 {
+			if at == cutAfterOperator && i%7 == 0 {
 				sb.WriteString("\n")
 			}
 		}
@@ -67,7 +77,7 @@ func TestOneThread(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	long, longValue := sum(3000, true)
+	long, longValue := sum(3000, cutAfterOperator)
 
 	inputs := []struct {
 		name   string
@@ -106,33 +116,49 @@ func TestOneThread(t *testing.T) {
 
 // TestKnownIssueC13 documents that the example cannot be parsed by more than one
 // worker: with two or more threads the parser returns an error as soon as the
-// text is split (the error comes from the worker that has to match a chunk that
-// starts or ends inside a cycle of three symbols). The failure is the same on
-// commit ce75289, the last one before any change to the cyclic parser (its parser
-// is the one of commit 46dea04), so it is not caused by those changes.
+// text is split. A worker that starts inside the cycle puts aside its first
+// terminal, *, and the line that turns ≐ into ⋖ after a terminal put aside
+// (copp.go) makes the next terminal, the operator, the start of a new right-hand
+// side, which is not a prefix of any rule. The failure is the same on commit
+// ce75289, the last one before any change to the cyclic parser (its parser is
+// the one of commit 46dea04), so it is not caused by those changes.
 //
 // The test passes while the problem exists. When it starts failing, the problem
-// is fixed: move these thread counts into TestOneThread and delete this test.
+// is fixed: move these cases into TestOneThread and delete this test.
 //
-// Only the cut after the operator is used here. A cut before the * does not
-// return an error but makes a worker panic with an index out of range, which a
-// test cannot catch because the panic is raised in another goroutine.
+// Eight terms are the smallest input that fails: the second worker gets only
+// "7 *+=+= 8". Before the fix of the binary searches in grammar.go the cut
+// before the * made a worker panic with an index out of range, which a test
+// cannot catch because the panic is raised in another goroutine; now it returns
+// an error like the other cut.
 func TestKnownIssueC13(t *testing.T) {
-	source, want := sum(3000, true)
+	inputs := []struct {
+		name string
+		n    int
+		at   cut
+	}{
+		{"8 terms, cut after the operator", 8, cutAfterOperator},
+		{"3000 terms, cut after the operator", 3000, cutAfterOperator},
+		{"3000 terms, cut before the *", 3000, cutBeforeTimes},
+	}
 
-	for _, s := range strategies {
-		for _, threads := range []int{2, 3, 4, 8} {
-			root, err := newRunner(threads, s.strategy).Run(context.Background(), []byte(source))
-			if err != nil {
-				continue // still broken, as documented
-			}
+	for _, in := range inputs {
+		source, want := sum(in.n, in.at)
 
-			if v, ok := root.Value.(int64); ok && v == want {
-				t.Errorf("%s reduction, %d threads: parsed correctly, so C13 seems fixed: "+
-					"move this case into TestOneThread and delete TestKnownIssueC13", s.name, threads)
-			} else {
-				t.Errorf("%s reduction, %d threads: no error but the value is %v, want %d: the failure has changed, update C13",
-					s.name, threads, root.Value, want)
+		for _, s := range strategies {
+			for _, threads := range []int{2, 3, 4, 8} {
+				root, err := newRunner(threads, s.strategy).Run(context.Background(), []byte(source))
+				if err != nil {
+					continue // still broken, as documented
+				}
+
+				if v, ok := root.Value.(int64); ok && v == want {
+					t.Errorf("%s, %s reduction, %d threads: parsed correctly, so C13 seems fixed: "+
+						"move this case into TestOneThread and delete TestKnownIssueC13", in.name, s.name, threads)
+				} else {
+					t.Errorf("%s, %s reduction, %d threads: no error but the value is %v, want %d: the failure has changed, update C13",
+						in.name, s.name, threads, root.Value, want)
+				}
 			}
 		}
 	}
