@@ -100,7 +100,7 @@ func (s *Scanner) findCutPoints(maxConcurrency int) ([]int, int) {
 				startPos = pos + 1
 				state = s.Lexer.CutPointsAutomaton[0]
 			} else {
-				state = s.Lexer.Automaton[stateIdx]
+				state = s.Lexer.CutPointsAutomaton[stateIdx]
 			}
 			pos++
 		}
