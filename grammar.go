@@ -139,6 +139,9 @@ func (g *Grammar) findRuleMatch(rhs []TokenType) (TokenType, uint16) {
 			curKey := g.CompressedRules[pos]
 
 			if uint16(key) < curKey {
+				if indexPos == 0 {
+					break
+				}
 				high = indexPos - 1
 			} else if uint16(key) > curKey {
 				low = indexPos + 1
@@ -179,6 +182,9 @@ func (g *Grammar) findPrefixMatch(rhs []TokenType) (TokenType, uint16) {
 			curKey := g.CompressedPrefixes[pos]
 
 			if uint16(key) < curKey {
+				if indexPos == 0 {
+					break
+				}
 				high = indexPos - 1
 			} else if uint16(key) > curKey {
 				low = indexPos + 1
