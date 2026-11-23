@@ -101,14 +101,6 @@ func TestTreesDoNotChange(t *testing.T) {
 		return r.Run(context.Background(), source)
 	}
 
-	// knownDifferent lists the combinations that build a different tree today.
-	// With the sweep reduction and three or more threads the trees of the random
-	// objects lose many nodes (see KNOWN_ISSUES.md). They stay in the golden file,
-	// so that a change must not alter them either, but they are not an error.
-	knownDifferent := func(strategy string, threads int) bool {
-		return strategy == "sweep" && threads >= 3
-	}
-
 	var lines []string
 	add := func(label string, source []byte) {
 		ref, err := parse(source, 1, gopapageno.ReductionParallel)
@@ -126,12 +118,8 @@ func TestTreesDoNotChange(t *testing.T) {
 
 				digest, nodes := treecheck.Digest(root)
 				if digest != refDigest {
-					if knownDifferent(s.name, threads) {
-						t.Logf("known issue: %s, %s reduction, %d threads: %d nodes instead of %d", label, s.name, threads, nodes, refNodes)
-					} else {
-						t.Errorf("%s, %s reduction, %d threads: the tree depends on the split: %s %d against %s %d with one thread",
-							label, s.name, threads, digest, nodes, refDigest, refNodes)
-					}
+					t.Errorf("%s, %s reduction, %d threads: the tree depends on the split: %s %d against %s %d with one thread",
+						label, s.name, threads, digest, nodes, refDigest, refNodes)
 				}
 
 				lines = append(lines, fmt.Sprintf("%s | %s | %d threads | %s %d", label, s.name, threads, digest, nodes))
@@ -147,6 +135,15 @@ func TestTreesDoNotChange(t *testing.T) {
 
 		add(fmt.Sprintf("random object %d", seed), []byte(sb.String()))
 	}
+
+	// The smallest input that lost nodes before the fix of CombineSweepLOS: with
+	// the sweep reduction and three threads the pairs of the middle chunk were
+	// lost, 83 nodes instead of 115.
+	pairs := make([]string, 7)
+	for i := range pairs {
+		pairs[i] = "\"k\": [1,\n2,\n3]"
+	}
+	add("seven pairs", []byte("{"+strings.Join(pairs, ", ")+"}"))
 
 	for _, name := range []string{"example.json", "emojis.json"} {
 		source, err := os.ReadFile("../data/" + name)

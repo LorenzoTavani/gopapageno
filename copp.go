@@ -472,9 +472,15 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 			tokenSet[t] = struct{}{}
 		}
 
+		// A run of ≐ elements is a series of shifts, and the state of each element
+		// is the state of the previous one plus a token, so only the state of the
+		// last element of the run is needed. runState keeps it until the run ends.
+		var runState []*Token
+
 		for t, st = it.Next(); t != nil; t, st = it.Next() {
 			if t.Precedence == PrecEquals {
 				if !it.IsLast() {
+					runState = stacks[i].StateTokenStack.Slice(st.CurrentIndex, st.CurrentLen)
 					continue
 				}
 
@@ -510,6 +516,22 @@ func (p *COPParser) CombineSweepLOS(pool *Pool[stack[Token]], stacks []*COPPStac
 
 				continue
 			}
+
+			// A run of ≐ elements in the middle of the stack ends here. Its state holds
+			// a part of the construction that the state of this element does not repeat,
+			// such as the first token of a sequence, which points to the parent of the
+			// sequence: without it the parent and its subtree are lost.
+			for _, stateToken := range runState {
+				if _, ok := tokenSet[stateToken]; !ok {
+					stateToken.Precedence = PrecEmpty
+
+					input.Push(*stateToken)
+
+					tokenSet[stateToken] = struct{}{}
+				}
+			}
+
+			runState = nil
 
 			for _, stateToken := range stacks[i].StateTokenStack.Slice(st.CurrentIndex, st.CurrentLen) {
 				if _, ok := tokenSet[stateToken]; !ok {
